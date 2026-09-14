@@ -8,10 +8,60 @@
 |---|---|
 | [`prompt-architect`](skills/prompt-architect/) | どの生成AI・AIエージェントにも移植できる実務用プロンプトを、ヒアリングなしで一発設計する。9ブロック構成 + 実務アーキタイプ + 能力ティア適合 + 機械リンター。モデル世代が上がるほどプロンプトを「引く」方向に更新する仕組みを内蔵。 |
 
+## インストール
+
+### A. Claude Code — プラグインとして入れる（推奨）
+
+このリポジトリはプラグインマーケットプレイスを兼ねている。Claude Code のセッション内で:
+
+```
+/plugin marketplace add keyakizakap-alt/general-skills
+/plugin install general-skills@keyakizakap-skills
+```
+
+インストール後は `/prompt-architect` で呼び出せる（依頼文が description に合致すれば自動でも起動する）。
+更新は `/plugin marketplace update keyakizakap-skills`。
+
+### B. Claude Code — ファイルを直接置く
+
+```bash
+git clone https://github.com/keyakizakap-alt/general-skills.git ~/src/general-skills
+
+# 個人用（全プロジェクトで有効）
+mkdir -p ~/.claude/skills
+ln -s ~/src/general-skills/skills/prompt-architect ~/.claude/skills/prompt-architect
+
+# または プロジェクト用（コミットすればチーム全員が使える）
+mkdir -p .claude/skills && cp -r ~/src/general-skills/skills/prompt-architect .claude/skills/
+```
+
+### C. claude.ai（Web / デスクトップ / モバイル）
+
+ZIPを作ってアップロードする。
+
+```bash
+python3 tools/build_skill_zip.py            # dist/prompt-architect.zip を生成
+```
+
+claude.ai → Settings → Capabilities（Features）→ Skills から `dist/prompt-architect.zip` をアップロードする。
+
+- Pro / Max / Team / Enterprise プランで、**コード実行（ファイルの作成と編集）が有効**であることが前提
+- ZIPはスキルフォルダを直下に含む形式で生成される（`prompt-architect/SKILL.md` …）。ビルドスクリプトが `name` の形式・予約語・`description` の長さなど、アップロードが弾かれる条件を事前に検証する
+- claude.ai の カスタムスキルは**ユーザー個人単位**。チームで使うには各自がアップロードする
+- **スキルは surface 間で同期しない**。Claude Code / claude.ai / API はそれぞれ別に登録する
+
 ## 使い方
 
-Claude Code から利用する場合は、このリポジトリをスキルの探索対象に置く（`.claude/skills/` 配下に配置、またはプラグインとして読み込む）。
 各スキルは `SKILL.md` に手順、`references/` に詳細、`assets/` にテンプレート、`scripts/` に検証ツールを持つ。
+`SKILL.md` の `description` に合致する依頼をすれば自動で読み込まれ、`/prompt-architect` で明示的にも呼び出せる。
+
+呼び出される例:
+
+- 「問い合わせメールを自動分類するプロンプトを作って」
+- 「議事録をAIに書かせたい。指示文を用意して」
+- 「このプロンプト、精度が安定しないので改善して」
+- 「経費チェックのエージェントのシステムプロンプトを設計して」
+- 「モデルを新しくしたら出力が変わった。プロンプトを見直したい」
 
 ```bash
 # プロンプトの機械チェック
@@ -20,6 +70,18 @@ python3 skills/prompt-architect/scripts/lint_prompt.py path/to/prompt.txt
 # 能力ティア適合（T2以上では、旧世代向けの足場が残っていないかを検出）
 python3 skills/prompt-architect/scripts/lint_prompt.py path/to/prompt.txt --tier T2
 ```
+
+## 開発者向け
+
+```bash
+claude plugin validate .claude-plugin/marketplace.json   # マーケットプレイス定義
+claude plugin validate .claude-plugin/plugin.json        # プラグイン定義
+claude plugin validate skills/                           # スキル本体
+python3 tools/build_skill_zip.py                         # claude.ai 用ZIPを生成（検証つき）
+```
+
+スキルを追加するときは `skills/<skill-name>/SKILL.md` を作る。`plugin.json` は既定で `skills/` を読むため、
+マニフェストの編集は不要（マーケットプレイスの説明文を更新したい場合のみ触る）。
 
 ## 設計上の方針
 
