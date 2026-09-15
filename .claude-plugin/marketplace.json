@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "keyakizakap-skills",
+  "owner": {
+    "name": "keyakizakap-alt",
+    "url": "https://github.com/keyakizakap-alt"
+  },
+  "description": "業務で使える汎用スキル集のマーケットプレイス。プロンプト設計をはじめとする実務向けスキルを配布する。",
+  "plugins": [
+    {
+      "name": "general-skills",
+      "source": "./",
+      "description": "実務用プロンプトを一発設計する prompt-architect を収録したスキル集。"
+    }
+  ]
+}
