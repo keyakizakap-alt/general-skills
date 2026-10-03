@@ -14,7 +14,7 @@ description: リポジトリにAIコーディングエージェント用の「�
 
 ハーネスの中心は **終了コード0/非0を返す1本の検証コマンド**。フック・CI・レビューはすべてこれを呼ぶ。
 
-- 既存の仕組みを優先して探す: `Makefile` / `package.json` の scripts / `pyproject.toml` / CI の設定。
+- `install.py` が既存の仕組みから自動判定する（Makefile の check/test → package.json の check/test → go → cargo → pytest）。判定結果が妥当かを確認し、違えば `--check` で指定する。
 - 速さの目安: 編集のたびに走るので **数秒〜30秒**。重いE2Eは CI 側に分ける。
 - なければ作る。最低限: 構文チェック（lint / typecheck）＋ 単体テスト ＋ リポジトリ固有の整合性チェック（設定とドキュメントのずれなど）。
 - 決められない（テストが一切なく、何を合格とすべきか不明）場合だけユーザーに聞く。
@@ -22,7 +22,7 @@ description: リポジトリにAIコーディングエージェント用の「�
 ### 2. まず dry-run で予定を見せる
 
 ```bash
-python3 <このスキル>/scripts/install.py --target . --check "<検証コマンド>" --dry-run
+python3 <このスキル>/scripts/install.py --dry-run          # カレントディレクトリが導入先
 ```
 
 既存ファイルは上書きしない（`SKIP` と出る）。`.claude/settings.json` は既存の設定にフックと権限を**追記マージ**する。
@@ -31,12 +31,18 @@ python3 <このスキル>/scripts/install.py --target . --check "<検証コマ�
 ### 3. 実行して中身を埋める
 
 ```bash
-python3 <このスキル>/scripts/install.py --target . --check "<検証コマンド>" [--ci]
+python3 <このスキル>/scripts/install.py [--check "<検証コマンド>"] [--ci]
 ```
 
 - `AGENTS.md` の `<...>` を、コードを読んで埋める。**短く**: 毎回必要なことだけ。詳細はパスで指す。
 - 既に `CLAUDE.md` がある場合は上書きされない。先頭に `@AGENTS.md` を足すか、内容を AGENTS.md に寄せる（Claude Code 以外のエージェントも読めるようにするため）。
 - `--ci` は GitHub Actions を使っている場合だけ付ける。
+
+このスキルのファイルが手元にない環境では、clone せずに1行で同じことができる（Python 3 と git か curl が必要）:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/keyakizakap-alt/general-skills/main/tools/install-harness.sh | sh -s -- --dry-run
+```
 
 ### 4. 動作を確かめる
 

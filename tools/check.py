@@ -124,6 +124,18 @@ def check_python_compiles():
     return errors, []
 
 
+def check_shell_scripts():
+    """sh -n で構文だけ確認する（実行はしない）。"""
+    errors = []
+    for f in sorted(ROOT.rglob("*.sh")):
+        if ".git" in f.parts:
+            continue
+        r = subprocess.run(["sh", "-n", str(f)], capture_output=True, text=True)
+        if r.returncode != 0:
+            errors.append(f"{rel(f)}: {r.stderr.strip()}")
+    return errors, []
+
+
 def check_prompt_examples_lint():
     errors = []
     for pattern in LINT_TARGETS:
@@ -175,6 +187,7 @@ CHECKS = [
     ("プラグイン/マーケットプレイス定義", check_manifests),
     ("README のスキル一覧", check_readme_lists_skills),
     ("Python の構文", check_python_compiles),
+    ("シェルスクリプトの構文", check_shell_scripts),
     ("プロンプト例のリンター回帰", check_prompt_examples_lint),
     ("ハーネスの同期", check_harness_in_sync),
     ("秘密情報", check_no_secrets),

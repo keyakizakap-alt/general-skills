@@ -10,6 +10,30 @@
 | [`agent-harness-kit`](skills/agent-harness-kit/) | リポジトリにAIコーディングエージェント用のハーネスを入れる。AGENTS.md/CLAUDE.md、完了の定義となる検証コマンド、Claude Code フック（編集後の自動検証・検証が通るまで終わらせない Stop ゲート・進捗の復元）、PROGRESS.md、レビュー用サブエージェント、CI を、既存ファイルを壊さずに一式導入する。 |
 | [`ryo-product-delivery`](skills/ryo-product-delivery/) | Webアプリ・AI機能・LP・発表資料を、既存コードと実装済み機能の確認から始めて、実装→スマホ/PC表示・ボタン実動作・認証/データ分離・APIキー管理の検証まで一気通貫で仕上げる。安易なAI風デザインを避け、最新の指示とコードを優先する。 |
 
+## クイックスタート：どのリポジトリにもハーネスを1行で入れる
+
+導入したいリポジトリのルートで実行する（Python 3 と git か curl が必要。このリポジトリの clone は不要）。
+
+```bash
+# 1. 何が作られるかだけ確認（ファイルは書かない）
+curl -fsSL https://raw.githubusercontent.com/keyakizakap-alt/general-skills/main/tools/install-harness.sh | sh -s -- --dry-run
+
+# 2. 実行（GitHub Actions も入れるなら末尾に -s -- --ci）
+curl -fsSL https://raw.githubusercontent.com/keyakizakap-alt/general-skills/main/tools/install-harness.sh | sh
+```
+
+- 検証コマンド（完了の定義）は `Makefile` / `package.json` / `go.mod` / `Cargo.toml` / pytest から自動判定する。違う場合は `sh -s -- --check "npm run verify"` のように指定する。
+- 既存ファイルは上書きしない。`.claude/settings.json` だけは既存設定にフックと権限を追記する。
+- 入れたあとは `AGENTS.md` の `<...>` を埋め、Claude Code を開き直す。以降は自動で「編集後に検証 → 失敗なら直す → 通るまで終わらない」が回る。
+- Claude Code でこのプラグインを入れていれば、チャットで「このリポジトリにハーネスを入れて」と頼むだけでもよい（`agent-harness-kit` スキルが起動する）。
+
+このリポジトリを clone 済みなら `make` でコマンド一覧が出る。
+
+```bash
+make install-harness TARGET=../my-app ARGS=--dry-run
+make install-harness TARGET=../my-app
+```
+
 ## インストール
 
 ### A. Claude Code — プラグインとして入れる（推奨）
@@ -78,6 +102,7 @@ python3 skills/prompt-architect/scripts/lint_prompt.py path/to/prompt.txt --tier
 このリポジトリ自体も `agent-harness-kit` で整備している（AIエージェント向けの指示は [`AGENTS.md`](AGENTS.md)）。
 
 ```bash
+make           # コマンド一覧
 make check     # 完了の定義。編集後・終了前のフックと CI も同じものを実行する
 make zip       # claude.ai 用ZIPを dist/ に生成
 make harness   # agent-harness-kit の最新版をこのリポジトリに入れ直す

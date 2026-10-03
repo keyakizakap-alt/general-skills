@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """任意のリポジトリにエージェント用ハーネスを入れる（標準ライブラリのみ）。
 
-    python3 install.py --target <repo> --check "make check" --dry-run   # 何が起きるかだけ表示
-    python3 install.py --target <repo> --check "make check"             # 実行
-    python3 install.py --target <repo> --check "npm test" --ci          # GitHub Actions も追加
+    python3 install.py --dry-run          # カレントディレクトリに入れる予定だけ表示（検証コマンドは自動判定）
+    python3 install.py                    # 実行
+    python3 install.py --ci               # GitHub Actions も追加
+    python3 install.py --target ../app --check "npm test"   # 導入先と検証コマンドを明示
 
 方針（安全側に倒す）:
 - 既存ファイルは上書きしない。既にあるものは SKIP と表示するだけ
@@ -14,6 +15,7 @@
 import argparse
 import datetime
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -21,6 +23,38 @@ from pathlib import Path
 KIT = Path(__file__).resolve().parent.parent
 HOOKS = KIT / "assets" / "hooks"
 TPL = KIT / "assets" / "templates"
+PLACEHOLDER = "<検証コマンド>"
+
+
+def detect_check(root):
+    """リポジトリの既存の仕組みから検証コマンドを推定する。見つからなければ空文字。"""
+    mk = root / "Makefile"
+    if mk.exists():
+        targets = re.findall(r"^([A-Za-z0-9_-]+):", mk.read_text(encoding="utf-8", errors="ignore"), re.M)
+        for t in ("check", "test"):
+            if t in targets:
+                return f"make {t}"
+    pkg = root / "package.json"
+    if pkg.exists():
+        try:
+            scripts = json.loads(pkg.read_text(encoding="utf-8")).get("scripts", {})
+        except ValueError:
+            scripts = {}
+        runner = ("pnpm" if (root / "pnpm-lock.yaml").exists() else
+                  "yarn" if (root / "yarn.lock").exists() else
+                  "bun" if (root / "bun.lockb").exists() or (root / "bun.lock").exists() else "npm")
+        if "check" in scripts:
+            return f"{runner} run check"
+        if "test" in scripts and "no test specified" not in scripts["test"]:
+            return f"{runner} test"
+    if (root / "go.mod").exists():
+        return "go test ./..."
+    if (root / "Cargo.toml").exists():
+        return "cargo test"
+    if any((root / f).exists() for f in ("pyproject.toml", "pytest.ini", "setup.cfg", "tox.ini")) \
+            and ((root / "tests").is_dir() or (root / "test").is_dir()):
+        return "python3 -m pytest -q"
+    return ""
 
 
 class Plan:
@@ -68,8 +102,8 @@ def merge_settings(existing, kit):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--target", required=True, help="導入先リポジトリのルート")
-    ap.add_argument("--check", required=True, help='完了の定義となる検証コマンド（例: "make check"）')
+    ap.add_argument("--target", default=".", help="導入先リポジトリのルート（既定: カレントディレクトリ）")
+    ap.add_argument("--check", help='完了の定義となる検証コマンド（例: "make check"）。省略時は自動判定')
     ap.add_argument("--ci", action="store_true", help=".github/workflows/check.yml も作る")
     ap.add_argument("--dry-run", action="store_true", help="書き込まずに予定だけ表示する")
     a = ap.parse_args()
@@ -78,8 +112,13 @@ def main():
     if not root.is_dir():
         print(f"NG  導入先がない: {root}")
         return 1
+    if a.check is None:
+        a.check = detect_check(root)
+        print(f"検証コマンド: {a.check}（自動判定。違う場合は --check で指定）" if a.check else
+              "検証コマンド: 見つからなかった。フックは何もしない状態で入る。"
+              "後で .claude/harness.json の \"check\" と AGENTS.md を埋める（または --check で再実行）。")
     p = Plan(a.dry_run)
-    sub = lambda s: s.replace("{{CHECK}}", a.check)  # noqa: E731
+    sub = lambda s: s.replace("{{CHECK}}", a.check or PLACEHOLDER)  # noqa: E731
     today = datetime.date.today().isoformat()
 
     # 0. 既存の settings.json が壊れていたら、何も書かずに中断する
@@ -116,7 +155,9 @@ def main():
     p.write(root / "PROGRESS.md", (TPL / "PROGRESS.md").read_text(encoding="utf-8").replace("YYYY-MM-DD", today))
     p.write(root / ".claude" / "agents" / "reviewer.md", (TPL / "agents" / "reviewer.md").read_text(encoding="utf-8"))
     p.write(root / ".claude" / "commands" / "handoff.md", (TPL / "commands" / "handoff.md").read_text(encoding="utf-8"))
-    if a.ci:
+    if a.ci and not a.check:
+        p.log("SKIP", root / ".github" / "workflows" / "check.yml", "検証コマンドが未設定")
+    elif a.ci:
         p.write(root / ".github" / "workflows" / "check.yml", sub((TPL / "check.yml").read_text(encoding="utf-8")))
 
     # 4. 状態ファイルは共有しない
