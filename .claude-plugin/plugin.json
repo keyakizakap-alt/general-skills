@@ -2,13 +2,22 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "general-skills",
   "displayName": "General Skills",
-  "version": "0.1.0",
-  "description": "業務で使える汎用スキル集。現在は prompt-architect（どの生成AI・AIエージェントにも移植できる実務用プロンプトを一発設計する）を収録。",
+  "version": "0.2.0",
+  "description": "業務で使える汎用スキル集。プロンプト設計、プロダクト開発の一気通貫デリバリー、AIコーディングエージェント用ハーネスの導入などを収録（一覧は README）。",
   "author": {
     "name": "keyakizakap-alt",
     "url": "https://github.com/keyakizakap-alt"
   },
   "homepage": "https://github.com/keyakizakap-alt/general-skills",
   "repository": "https://github.com/keyakizakap-alt/general-skills",
-  "keywords": ["prompt", "prompt-engineering", "agent", "japanese", "productivity"]
+  "keywords": [
+    "agent",
+    "claude-code",
+    "context-engineering",
+    "harness",
+    "japanese",
+    "productivity",
+    "prompt",
+    "prompt-engineering"
+  ]
 }

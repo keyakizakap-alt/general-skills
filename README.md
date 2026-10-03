@@ -7,6 +7,7 @@
 | スキル | 概要 |
 |---|---|
 | [`prompt-architect`](skills/prompt-architect/) | どの生成AI・AIエージェントにも移植できる実務用プロンプトを、ヒアリングなしで一発設計する。9ブロック構成 + 実務アーキタイプ + 能力ティア適合 + 機械リンター。モデル世代が上がるほどプロンプトを「引く」方向に更新する仕組みを内蔵。 |
+| [`agent-harness-kit`](skills/agent-harness-kit/) | リポジトリにAIコーディングエージェント用のハーネスを入れる。AGENTS.md/CLAUDE.md、完了の定義となる検証コマンド、Claude Code フック（編集後の自動検証・検証が通るまで終わらせない Stop ゲート・進捗の復元）、PROGRESS.md、レビュー用サブエージェント、CI を、既存ファイルを壊さずに一式導入する。 |
 | [`ryo-product-delivery`](skills/ryo-product-delivery/) | Webアプリ・AI機能・LP・発表資料を、既存コードと実装済み機能の確認から始めて、実装→スマホ/PC表示・ボタン実動作・認証/データ分離・APIキー管理の検証まで一気通貫で仕上げる。安易なAI風デザインを避け、最新の指示とコードを優先する。 |
 
 ## インストール
@@ -73,6 +74,14 @@ python3 skills/prompt-architect/scripts/lint_prompt.py path/to/prompt.txt --tier
 ```
 
 ## 開発者向け
+
+このリポジトリ自体も `agent-harness-kit` で整備している（AIエージェント向けの指示は [`AGENTS.md`](AGENTS.md)）。
+
+```bash
+make check     # 完了の定義。編集後・終了前のフックと CI も同じものを実行する
+make zip       # claude.ai 用ZIPを dist/ に生成
+make harness   # agent-harness-kit の最新版をこのリポジトリに入れ直す
+```
 
 ```bash
 claude plugin validate .claude-plugin/marketplace.json   # マーケットプレイス定義

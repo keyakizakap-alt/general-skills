@@ -10,7 +10,7 @@
     {
       "name": "general-skills",
       "source": "./",
-      "description": "実務用プロンプトを一発設計する prompt-architect を収録したスキル集。"
+      "description": "業務で使える汎用スキル集（プロンプト設計・プロダクト開発・エージェント用ハーネス導入など）。"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "check": "make check",
+  "check_timeout": 120,
+  "max_stop_retries": 3,
+  "progress_file": "PROGRESS.md",
+  "progress_lines": 40,
+  "watch": []
+}
