@@ -1,0 +1,9 @@
+{
+  "name": "vibe-deck",
+  "version": "0.1.0",
+  "description": "Indie-dev HUD: themed band above the prompt, theme gallery pane, styled prompts and a tidy chat answer style",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "keyakizakap-alt"
+  }
+}
