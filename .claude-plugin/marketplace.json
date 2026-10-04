@@ -11,6 +11,11 @@
       "name": "general-skills",
       "source": "./",
       "description": "実務用プロンプトを一発設計する prompt-architect を収録したスキル集。"
+    },
+    {
+      "name": "vibe-deck",
+      "source": "./mods/vibe-deck",
+      "description": "個人開発者向けのおしゃれなHUD mod。Catppuccin / Tokyo Night / Rosé Pine などのテーマでプロンプト上のバンド・自分の発言行・テーマギャラリーを彩り、チャット回答を「結論→根拠→Next →」の読みやすい型に整える。"
     }
   ]
 }
