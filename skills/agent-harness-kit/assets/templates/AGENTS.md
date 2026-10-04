@@ -13,6 +13,14 @@ AIコーディングエージェント（Claude Code / Codex / Cursor など）�
 - `{{CHECK}}` が終了コード0で通ること。通らない状態で「完了」と報告しない。
 - 変更が README / 設定ファイルの記述とずれていないこと（検証がずれを検出する場合はそれに従う）。
 
+## 日々の使い方（Claude Code）
+
+- `/next` — PROGRESS.md の「次にやること」を1つ進め、検証・引き継ぎまで済ませる。`/next <やること>` で指定もできる
+- `/harness` — 状態確認。`/harness off` で一時停止（この作業コピーだけ）、`on` で再開、`update` で最新版に更新
+- `/handoff` — 作業を区切って PROGRESS.md を更新する
+
+Claude Code 以外では `python3 .claude/hooks/harness_ctl.py [status|on|off|update]` が同じ操作になる。
+
 ## 進め方
 
 1. 着手前に `PROGRESS.md` を読み、続きかどうかを判断する。

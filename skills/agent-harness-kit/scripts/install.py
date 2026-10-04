@@ -153,8 +153,9 @@ def main():
     p.write(root / "AGENTS.md", sub((TPL / "AGENTS.md").read_text(encoding="utf-8")))
     p.write(root / "CLAUDE.md", (TPL / "CLAUDE.md").read_text(encoding="utf-8"))
     p.write(root / "PROGRESS.md", (TPL / "PROGRESS.md").read_text(encoding="utf-8").replace("YYYY-MM-DD", today))
-    p.write(root / ".claude" / "agents" / "reviewer.md", (TPL / "agents" / "reviewer.md").read_text(encoding="utf-8"))
-    p.write(root / ".claude" / "commands" / "handoff.md", (TPL / "commands" / "handoff.md").read_text(encoding="utf-8"))
+    for kind in ("agents", "commands"):  # /next /harness /handoff と reviewer
+        for src in sorted((TPL / kind).glob("*.md")):
+            p.write(root / ".claude" / kind / src.name, src.read_text(encoding="utf-8"))
     if a.ci and not a.check:
         p.log("SKIP", root / ".github" / "workflows" / "check.yml", "検証コマンドが未設定")
     elif a.ci:
@@ -162,15 +163,16 @@ def main():
 
     # 4. 状態ファイルは共有しない
     gi = root / ".gitignore"
-    line = ".claude/.harness-state/"
     text = gi.read_text(encoding="utf-8") if gi.exists() else ""
-    if line in text.splitlines():
+    need = [ln for ln in (".claude/.harness-state/", ".claude/hooks/__pycache__/") if ln not in text.splitlines()]
+    if not need:
         p.log("OK", gi, "追記不要")
     else:
-        p.write(gi, text + ("" if not text or text.endswith("\n") else "\n") + line + "\n", overwrite=True)
+        p.write(gi, text + ("" if not text or text.endswith("\n") else "\n") + "\n".join(need) + "\n", overwrite=True)
 
     print("\n(dry-run: 何も書き込んでいない)" if a.dry_run else
-          "\n完了。AGENTS.md の <...> を埋め、`claude` を再起動（または /hooks を開く）するとフックが有効になる。")
+          "\n完了。AGENTS.md の <...> を埋め、`claude` を再起動（または /hooks を開く）するとフックが有効になる。"
+          "\n日々の操作: /next（次の作業を1つ進める） /harness（状態確認・一時停止・更新） /handoff（引き継ぎ）")
     return 0
 
 

@@ -4,5 +4,6 @@
   "max_stop_retries": 3,
   "progress_file": "PROGRESS.md",
   "progress_lines": 40,
-  "watch": []
+  "watch": [],
+  "remind_progress": true
 }

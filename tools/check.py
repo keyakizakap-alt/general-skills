@@ -155,6 +155,11 @@ def check_harness_in_sync():
         if not dst.exists() or dst.read_bytes() != src.read_bytes():
             errors.append(f".claude/hooks/{src.name} がキットと不一致。"
                           f"`python3 skills/agent-harness-kit/scripts/install.py --target . --check \"make check\"` で揃える")
+    for kind in ("agents", "commands"):
+        for src in sorted((KIT_HOOKS.parent / "templates" / kind).glob("*.md")):
+            dst = ROOT / ".claude" / kind / src.name
+            if not dst.exists() or dst.read_bytes() != src.read_bytes():
+                errors.append(f".claude/{kind}/{src.name} がキットと不一致（キット側を編集して `make harness`）")
     settings = load_json(ROOT / ".claude" / "settings.json", errors)
     load_json(ROOT / ".claude" / "harness.json", errors)
     for group in (settings or {}).get("hooks", {}).values():

@@ -7,6 +7,7 @@
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True  # 利用者のリポジトリに __pycache__ を残さない
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _harness as h  # noqa: E402
 
@@ -14,6 +15,8 @@ import _harness as h  # noqa: E402
 def main():
     event = h.read_event()
     cfg = h.load_config()
+    if h.disabled_reason():
+        return 0
     path = (event.get("tool_input") or {}).get("file_path", "")
 
     watch = cfg.get("watch") or []

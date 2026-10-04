@@ -64,11 +64,21 @@ echo '{"session_id":"t","stop_hook_active":false}' | CLAUDE_PROJECT_DIR=$PWD pyt
 | `.claude/hooks/stop_gate.py` | 検証が通るまで終わらせない。差し戻しは上限回数まで | ループ＋安全装置 |
 | `.claude/settings.json` | 上記フックの登録、危険操作の deny | ハーネス（制約） |
 | `PROGRESS.md` | セッションをまたぐ進捗メモ | コンテキスト（外部記憶） |
+| `.claude/hooks/harness_ctl.py` | 状態確認・一時停止・再開・更新の入口（`/harness` の実体。ターミナルからも使える） | 運用 |
+| `.claude/commands/next.md` | `/next` で「次にやること」を1つ進め、検証・引き継ぎまで | ループ（1手ずつ前進） |
+| `.claude/commands/harness.md` | `/harness [status\|on\|off\|update]` | 運用 |
 | `.claude/agents/reviewer.md` | 実装者と分けた読み取り専用レビュアー | 生成と評価の分離 |
 | `.claude/commands/handoff.md` | `/handoff` で検証→PROGRESS 更新→引き継ぎ | ループの区切り |
 | `.github/workflows/check.yml`（任意） | PR ごとに同じ検証を実行 | ハーネス（検証） |
 
 配布物の実体は `assets/hooks/`（フック本体）と `assets/templates/`（雛形）。`scripts/install.py` がこれらをコピー・マージする。
+
+## 日々の使い方（導入後にユーザーへ伝える）
+
+- `/next` — 次の作業を1つ進めて検証・引き継ぎまで。`/next <やること>` で指定
+- `/harness` — 状態確認。`off` で一時停止（作業コピー単位・コミットされない）、`on` で再開、`update` で更新
+- `/handoff` — 途中で区切って PROGRESS.md を更新
+- 終了前フックは、ファイルを変えたのに進捗ファイルが未更新なら1回だけ更新を促す（`remind_progress: false` で無効）
 
 ## 運用の原則
 

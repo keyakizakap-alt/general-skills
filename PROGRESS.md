@@ -14,5 +14,6 @@
 
 ## 完了
 
+- 2026-10-04: 日々の運用を楽にした。`/next`（次の作業を1つ進めて検証・引き継ぎまで）、`/harness`（状態確認・一時停止・更新）、終了前の PROGRESS.md 更新リマインド（1セッション1回）。フックが利用者のリポジトリに `__pycache__` を残す不具合を修正。
 - 2026-10-03: 導入を簡単にした。`curl … install-harness.sh | sh` の1行導入（clone 不要）、検証コマンドの自動判定（Makefile / package.json / go / cargo / pytest）、`make` でコマンド一覧、`make install-harness TARGET=…`。
 - 2026-10-03: ハーネスを導入（AGENTS.md / CLAUDE.md / `make check` / フック3種 / reviewer サブエージェント / `/handoff` / CI）。`agent-harness-kit` スキルを追加。詳細は `docs/decisions/0001-agent-harness.md`。

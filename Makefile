@@ -1,8 +1,11 @@
 .DEFAULT_GOAL := help
-.PHONY: help check zip harness install-harness
+.PHONY: help status check zip harness install-harness
 
 help:  ## このメニューを表示する（make だけで出る）
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
+
+status:  ## ハーネスの状態（検証結果・次にやること・未コミット件数）
+	@python3 .claude/hooks/harness_ctl.py status
 
 check:  ## 完了の定義。フック・CI・人間がすべてこれを使う
 	python3 tools/check.py
