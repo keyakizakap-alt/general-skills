@@ -2,13 +2,21 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "general-skills",
   "displayName": "General Skills",
-  "version": "0.1.0",
-  "description": "業務で使える汎用スキル集。prompt-architect（どの生成AI・AIエージェントにも移植できる実務用プロンプトを一発設計する）、ryo-product-delivery（Webアプリ・AI機能・LP・発表資料を既存コードの確認から検証まで一気通貫で仕上げる）、workspace-setup（AIエージェント用の作業環境を構築）、work-loop（合格条件と停止条件つきの進め方）、deliverable-check（証拠つきの検品）と、読み取り専用の確認役 deliverable-reviewer を収録。",
+  "version": "0.2.0",
+  "description": "業務で使える汎用スキル集。スキル（prompt-architect、ryo-product-delivery、deck-sprint、workspace-setup、work-loop、deliverable-check）、資料作成とアプリ開発のワークフロー（deck-build、app-design、app-implement、verify-fix）、確認役のサブエージェント（deliverable-reviewer、researcher、fact-checker、ui-checker）を収録。",
   "author": {
     "name": "keyakizakap-alt",
     "url": "https://github.com/keyakizakap-alt"
   },
   "homepage": "https://github.com/keyakizakap-alt/general-skills",
   "repository": "https://github.com/keyakizakap-alt/general-skills",
-  "keywords": ["prompt", "prompt-engineering", "agent", "japanese", "productivity"]
+  "keywords": [
+    "prompt",
+    "prompt-engineering",
+    "agent",
+    "japanese",
+    "productivity",
+    "workflow",
+    "slides"
+  ]
 }

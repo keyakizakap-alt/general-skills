@@ -10,5 +10,3 @@ CLAUDE.local.md
 .claude/settings.local.json
 .claude/setup-backup/
 tasks/
-outputs/*
-!outputs/.gitkeep

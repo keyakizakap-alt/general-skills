@@ -19,11 +19,12 @@ Claude Code プラグイン / マーケットプレイス、および claude.ai 
 
 ## 構成
 
-- `skills/<name>/SKILL.md` — 配布するスキル本体。`references/` `assets/` `scripts/` を持てる
+- `skills/<name>/SKILL.md` — 配布するスキル本体（どのチャットでも動く書き方）。`references/` `assets/` `scripts/` を持てる
+- `workflows/*.js` — 配布する Dynamic workflows（Claude Code 専用）。`skills/workspace-setup/assets/workflows/` に同じコピーを置く
+- `agents/*.md` — 配布するサブエージェント
 - `mods/<name>/` — function hooks プラグイン（early access API）
-- `.claude-plugin/` — プラグイン / マーケットプレイスのマニフェスト
-- `tools/build_skill_zip.py` — claude.ai 用ZIPの生成と frontmatter 検証
-- `outputs/` — 上記以外の成果物置き場（中身はGit追跡外）
+- `.claude-plugin/` — プラグイン / マーケットプレイスのマニフェスト。配布内容を変えたら `plugin.json` の version を上げる
+- `tools/check.py` — 完了の定義（CI と同じ）。`tools/test_workflows.mjs` はワークフローの模擬実行テスト
 
 ## 共通ルール
 
@@ -45,15 +46,13 @@ Claude Code プラグイン / マーケットプレイス、および claude.ai 
 ## 検証方法（詳細と合格条件は `docs/ai/checks.md`）
 
 ```bash
-claude plugin validate .claude-plugin/marketplace.json
-claude plugin validate .claude-plugin/plugin.json
-claude plugin validate skills/
+python3 tools/check.py                    # 完了の定義（CI と同じ。make check でも可）
+make validate                             # claude CLI での plugin validate 一式
 python3 tools/build_skill_zip.py          # dist/ にZIPを出力（Git追跡外）
 claude plugin test mods/vibe-deck         # mod を変更したとき
-python3 .claude/hooks/check_setup.py      # エージェント用設定の構造検査
 ```
 
-`claude` CLI が無い環境では、該当項目を「未実行」と報告する。
+`claude` CLI や `node` が無い環境では、該当項目を「未実行」と報告する。ワークフローは模擬実行のみで、本物の実行は利用者の環境で確認する。
 
 ## 変更してよい範囲
 

@@ -46,6 +46,7 @@ description: 開いているプロジェクトに、AIエージェント（Claud
 - `.claude/rules/`: 用途に必要なものだけ。`paths` で対象を限定する（`paths` 無しは常時読み込み）。日本語文書用のひな形 `assets/rules/ja-writing.md`
 - `.claude/skills/project-work/`、`.claude/skills/project-check/`: ひな形 `assets/project-work.SKILL.md`、`assets/project-check.SKILL.md`。既存名や組み込みコマンドと衝突するなら改名する
 - `.claude/agents/project-reviewer.md`: tools は Read, Grep, Glob のみ。ひな形 `assets/project-reviewer.md`
+- 資料作成や難しい開発をするプロジェクトなら、`assets/workflows/` のワークフロー（`deck-build`、`app-design`、`app-implement`、`verify-fix`）を `.claude/workflows/` にコピーする。クラウドセッションではユーザー設定で有効にしたプラグインが読まれないため、リポジトリに置くと確実に使える。ワークフローは Claude Code 専用で、Pro プランでは `/config` で有効化が必要（`references/spec-notes.md`）
 
 ## 5. 権限を緩めずに設定する
 

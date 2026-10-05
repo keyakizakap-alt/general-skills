@@ -6,6 +6,9 @@
 
 | コマンド | 対象 | 副作用 |
 |---|---|---|
+| `python3 tools/check.py`（`make check`） | **完了の定義**。スキル・エージェント・マニフェスト・README一覧・Python構文・ワークフロー模擬実行・設定検査・秘密情報。CI と同じ | なし |
+| `node tools/test_workflows.mjs` | ワークフローの模擬実行（分岐・停止条件・エージェント数） | なし |
+| `make validate` | 下の `claude plugin validate` 一式（CI には無い） | なし |
 | `claude plugin validate .claude-plugin/marketplace.json` | マーケットプレイス定義 | なし |
 | `claude plugin validate .claude-plugin/plugin.json` | プラグイン定義 | なし |
 | `claude plugin validate skills/` | 配布スキルの frontmatter | なし |
@@ -30,6 +33,16 @@
 - [ ] どのチャットでも動くか: frontmatter は `name` と `description` だけ、本文が `@` 参照・`${CLAUDE_PROJECT_DIR}`・このリポジトリのファイルに依存していない、ファイルを書けない環境での代替手順がある
 - [ ] `workspace-setup/assets/check_setup.py` を変えたら `.claude/hooks/check_setup.py` にコピーし、テストが通る（同一性はテストで検査）
 - [ ] 手動: `/<skill-name>` で起動し、description どおりの場面で使えるか確認（未実施なら未実行と書く）
+
+### ワークフロー（`workflows/`）を追加・変更した
+
+- [ ] `node tools/test_workflows.mjs` 成功。新しい分岐・停止条件には模擬実行のテストを足した
+- [ ] `skills/workspace-setup/assets/workflows/` に同じ内容をコピーした（`tools/check.py` が一致を検査）
+- [ ] `meta` は先頭の純粋なリテラル、`phase()` の名前が `meta.phases` と一致、`Date.now()` / `Math.random()` / `import()` を使っていない
+- [ ] `depth: "lite"` の既定で1回あたりのエージェント数が Pro 向けの目安（5前後）に収まる。上限で切り捨てる場合は `log()` で知らせる
+- [ ] 承認が必要な区切りでワークフローを分けている（実行中は質問できない）
+- [ ] README のワークフロー一覧を更新した
+- [ ] 手動: Claude Code で小さな args で実際に実行した（未実施なら未実行と書く）
 
 ### mod（`mods/`）を変更した
 

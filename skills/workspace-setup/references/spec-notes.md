@@ -46,6 +46,14 @@
 - 連続継続は8回で打ち切られる（`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` で変更可）
 - `${CLAUDE_PROJECT_DIR}` はプロジェクトのルート。設定ファイルの直接編集は通常自動で再読み込みされる。確認は `/hooks`
 
+## Dynamic workflows（https://code.claude.com/docs/en/workflows）
+
+- 多数のサブエージェントを JavaScript のスクリプトで動かす。保存先は `.claude/workflows/`（プロジェクト）か `~/.claude/workflows/`（個人）。プラグインは `workflows/` に置くと `/<plugin>:<name>` で起動できる
+- 有料プランで利用可能。Pro は `/config` の Dynamic workflows で有効化する。規模の目安（workflowSizeGuideline）の既定は medium、Pro では small（5エージェント未満を目安、v2.1.271 以降）
+- 実行中は利用者の入力を受けられない。承認が必要な区切りではワークフローを分ける
+- スクリプト内で `Date.now()`、`Math.random()`、引数なしの `new Date()`、`import()` は使えない
+- `/deep-research` は組み込みのワークフロー（Web 検索で多角的に調べ、出典を突き合わせる）
+
 ## Sandbox（https://code.claude.com/docs/en/sandboxing）
 
 - macOS、Linux、WSL2 で動作。ネイティブ Windows は非対応。既定はオフ。`/sandbox` か `sandbox.enabled: true`

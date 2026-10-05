@@ -26,17 +26,20 @@ AIエージェントが作業前に必要に応じて読む背景情報。常時
 
 ## 確定事項（2026-10-05 にリポジトリで確認）
 
-- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`（後の3つは 2026-10-05 追加）
-- 収録サブエージェント（プラグインのみ）: `agents/deliverable-reviewer.md`
+- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`、`deck-sprint`
+- 収録ワークフロー（プラグインのみ・Claude Code 専用）: `deck-build`、`app-design`、`app-implement`、`verify-fix`
+- 収録サブエージェント（プラグインのみ）: `deliverable-reviewer`、`researcher`、`fact-checker`、`ui-checker`
+- 利用者のプラン: Pro（2026-10-05 に利用者から回答）。Pro でのワークフローの扱いは `skills/workspace-setup/references/spec-notes.md`（出典つき）
+- 資料の主な形式: pptx、claude.ai の Slides / Docs、HTML。アプリの技術スタックは案件ごとに異なる
 - 収録 mod: `vibe-deck`（function hooks は early access。README に 2.1.289 で検証済みと記載）
 - `plugin.json` は既定で `skills/` を読む。マーケットプレイスは `general-skills`（`./`）と `vibe-deck`（`./mods/vibe-deck`）の2プラグイン
-- 既存の検査: `claude plugin validate`、`tools/build_skill_zip.py`（name/description 制約の検証）、`claude plugin test`、`skills/prompt-architect/scripts/lint_prompt.py`
-- CI（`.github/workflows/`）は存在しない
+- 検査: `tools/check.py`（CI: `.github/workflows/check.yml`）、`claude plugin validate`、`claude plugin test`、`tools/build_skill_zip.py`
 
 ## 未確認事項
 
 - claude.ai のチャットで、スキルの frontmatter（`name` と `description` 以外）がどう扱われるか。配布スキルは2項目だけにしている
 - claude.ai のチャットで、利用者がスキル名を指定して明示起動できるか（配布スキルは自動起動前提で description を書いている）
+- ワークフローの本物の実行結果（このリポジトリでは模擬実行のみ。Workflow ツールはセッションで未使用）
 - 第三者の利用状況・利用者数
 - vibe-deck が 2.1.289 以外の Claude Code バージョンで動くか
 - `.claude/` 配下のスキル・エージェントはこのリポジトリ専用。他プロジェクトへは `skills/workspace-setup` のひな形から作る（プラグインの構成要素ではないため、インストール先では読み込まれない想定。未検証）
