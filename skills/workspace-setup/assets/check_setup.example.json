@@ -1,0 +1,8 @@
+{
+  "required_files": ["docs/ai/context.md", "docs/ai/checks.md", "docs/ai/setup-report.md"],
+  "json_files": [".mcp.json"],
+  "json_globs": [],
+  "manual_skills": ["project-work", "project-check"],
+  "readonly_agents": [".claude/agents/project-reviewer.md"],
+  "gitignore_lines": ["CLAUDE.local.md", ".claude/settings.local.json", ".claude/setup-backup/"]
+}

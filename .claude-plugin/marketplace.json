@@ -10,7 +10,7 @@
     {
       "name": "general-skills",
       "source": "./",
-      "description": "実務用プロンプトを一発設計する prompt-architect を収録したスキル集。"
+      "description": "実務用プロンプトを一発設計する prompt-architect、Webアプリ・LP・発表資料を検証まで仕上げる ryo-product-delivery、AI作業環境を整える workspace-setup、進め方の work-loop、検品の deliverable-check を収録したスキル集。"
     },
     {
       "name": "vibe-deck",

@@ -4,3 +4,11 @@ __pycache__/
 .DS_Store
 mods/*/.claude-plugin/types/
 mods/*/tsconfig.json
+
+# Claude Code: 個人用設定・作業記録・バックアップ（Git追跡外）
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/setup-backup/
+tasks/
+outputs/*
+!outputs/.gitkeep
