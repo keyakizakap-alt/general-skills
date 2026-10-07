@@ -11,6 +11,7 @@
 | [`workspace-setup`](skills/workspace-setup/) | 開いているプロジェクトに、AIエージェントが作業しやすい環境（AGENTS.md / CLAUDE.md の分割、パス限定ルール、作業・検査スキル、読み取り専用の確認役、秘密ファイルの deny、構造検査の Stop hook）を既存設定を壊さずに構築し、検査して報告する。チャットのみの環境ではファイル一式を出力する。 |
 | [`work-loop`](skills/work-loop/) | 複数手順の作業を「合格条件→小さく実行→検査→修正→引き継ぎ」で回し、同じ失敗2回・修正3巡で止めて記録を残す。何を作るかは他スキルに任せ、進め方と停止条件だけを扱う。 |
 | [`deliverable-check`](skills/deliverable-check/) | 成果物や差分を合格条件で検査し、条件ごとに成功/失敗/未実行/未確認と証拠を報告する。成果物は直さない。 |
+| [`anti-ai-look`](skills/anti-ai-look/) | UI・資料・文章が「いかにもAIが作った」見た目や文章になるのを防ぎ、なっているものを直す。作る前に参照点・質感・主役と5つの決定を固定し、最後に `check_ui.py`（UI）と `check_text.py`（文章）で兆候の重なりを機械検査する。 |
 | [`deck-sprint`](skills/deck-sprint/) | 提案書・報告資料・プレゼンを、構成案の比較→執筆→事実確認→組版→体裁検査まで一気に仕上げる。pptx / claude.ai の Slides・Docs / HTML に対応。Claude Code では `deck-build` ワークフローを使う。 |
 
 ## ワークフロー一覧（Claude Code 専用・プラグインに同梱）

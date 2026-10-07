@@ -10,7 +10,7 @@
     {
       "name": "general-skills",
       "source": "./",
-      "description": "資料を一気に仕上げる deck-build、難しいアプリを設計→実装→検証する app-design / app-implement / verify-fix のワークフローと、プロンプト設計・プロダクト開発・資料作成・AI作業環境構築・検品のスキル、確認役サブエージェントを収録したスキル集。"
+      "description": "資料を一気に仕上げる deck-build、難しいアプリを設計→実装→検証する app-design / app-implement / verify-fix のワークフロー、UI・資料・文章のAIっぽさを防ぐ anti-ai-look と、プロンプト設計・プロダクト開発・資料作成・AI作業環境構築・検品のスキル、確認役サブエージェントを収録したスキル集。"
     },
     {
       "name": "vibe-deck",

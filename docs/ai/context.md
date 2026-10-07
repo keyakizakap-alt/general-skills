@@ -26,7 +26,7 @@ AIエージェントが作業前に必要に応じて読む背景情報。常時
 
 ## 確定事項（2026-10-05 にリポジトリで確認）
 
-- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`、`deck-sprint`
+- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`、`deck-sprint`、`anti-ai-look`（PR #2 の anti-ai-design を UI・資料・文章向けに作り直したもの）
 - 収録ワークフロー（プラグインのみ・Claude Code 専用）: `deck-build`、`app-design`、`app-implement`、`verify-fix`
 - 収録サブエージェント（プラグインのみ）: `deliverable-reviewer`、`researcher`、`fact-checker`、`ui-checker`
 - 利用者のプラン: Pro（2026-10-05 に利用者から回答）。Pro でのワークフローの扱いは `skills/workspace-setup/references/spec-notes.md`（出典つき）
