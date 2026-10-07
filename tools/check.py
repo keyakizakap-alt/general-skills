@@ -197,6 +197,20 @@ def check_agent_setup():
     return errors, []
 
 
+def check_anti_ai_scripts():
+    """anti-ai-look の検査スクリプトの回帰: 悪い例は不合格（1）、良い例は合格（0）であり続けること。"""
+    errors = []
+    scripts = SKILLS / "anti-ai-look" / "scripts"
+    fx = ROOT / "tools" / "fixtures" / "anti-ai"
+    cases = [("check_text.py", "bad.md", 1), ("check_text.py", "good.md", 0),
+             ("check_ui.py", "bad.html", 1), ("check_ui.py", "good.html", 0)]
+    for script, fixture, expected in cases:
+        r = subprocess.run([sys.executable, str(scripts / script), str(fx / fixture)], capture_output=True, text=True)
+        if r.returncode != expected:
+            errors.append(f"{script} {fixture}: 終了コード {r.returncode}（期待 {expected}）")
+    return errors, []
+
+
 def check_prompt_examples_lint():
     errors = []
     for pattern in LINT_TARGETS:
@@ -231,6 +245,7 @@ CHECKS = [
     ("Python の構文", check_python_compiles),
     ("ワークフロー（構文・模擬実行）", check_workflows),
     ("エージェント用設定", check_agent_setup),
+    ("AIっぽさ検査スクリプトの回帰", check_anti_ai_scripts),
     ("プロンプト例のリンター回帰", check_prompt_examples_lint),
     ("秘密情報", check_no_secrets),
 ]
