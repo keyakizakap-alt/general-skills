@@ -77,6 +77,10 @@ ln -s ~/src/general-skills/skills/prompt-architect ~/.claude/skills/prompt-archi
 mkdir -p .claude/skills && cp -r ~/src/general-skills/skills/prompt-architect .claude/skills/
 ```
 
+このリポジトリ自体には `.claude/skills/<name>` から `skills/<name>` へのシンボリックリンクを置いてある。
+そのため**このリポジトリをクローンして作業する場合は、設定なしで全スキルが有効**になる。
+`/plugin` が使えない Claude Code on the web（リモートセッション）でも同様。
+
 ### C. claude.ai（Web / デスクトップ / モバイル）
 
 ZIPを作ってアップロードする。
@@ -154,8 +158,13 @@ python3 tools/build_skill_zip.py                         # claude.ai 用ZIPを�
 
 このリポジトリ自体の AI 作業環境（`AGENTS.md`、`.claude/`）と合格条件は [`docs/ai/checks.md`](docs/ai/checks.md) を参照。
 
-スキルを追加するときは `skills/<skill-name>/SKILL.md` を作る。`plugin.json` は既定で `skills/` を読むため、
-マニフェストの編集は不要（マーケットプレイスの説明文を更新したい場合のみ触る）。
+スキルを追加するときは `skills/<skill-name>/SKILL.md` を作り、`.claude/skills/` にリンクを張る。
+
+```bash
+ln -sfn ../../skills/<skill-name> .claude/skills/<skill-name>
+```
+
+`plugin.json` は既定で `skills/` を読むため、マニフェストの編集は不要（マーケットプレイスの説明文を更新したい場合のみ触る）。
 
 ## 設計上の方針
 
