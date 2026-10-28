@@ -17,6 +17,15 @@
       "Edit(**/*.key)",
       "Edit(**/.credentials.json)",
       "Edit(.claude/setup-backup/**)"
+    ],
+    "ask": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(npm publish *)",
+      "Bash(vercel)",
+      "Bash(vercel *)",
+      "Bash(netlify deploy *)",
+      "Bash(gh release *)"
     ]
   },
   "hooks": {
