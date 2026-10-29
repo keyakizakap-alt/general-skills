@@ -9,8 +9,9 @@
 | 共通ルール（正本） | `AGENTS.md` |
 | Claude の入口 | `.claude/CLAUDE.md`（`@../AGENTS.md`。ルートに置くと plugin validate が警告するため） |
 | パス限定ルール | `.claude/rules/`（`skills/**`、`mods/**`、`**/*.md`） |
+| 常時読み込みのルール | `.claude/rules/ryo-product-governance.md`（プロダクト判断の原則。`paths` なしのため `check_setup.py` が警告を1件出すのは想定どおり） |
 | このリポジトリ用の手順・確認役 | `.claude/skills/project-{work,check}`、`.claude/agents/project-reviewer.md` |
-| 権限 | `.claude/settings.json`（秘密ファイルの Read/Edit deny のみ。allow なし） |
+| 権限 | `.claude/settings.json`（秘密ファイルの Read/Edit deny。`git push`・`npm publish`・`vercel`・`netlify deploy`・`gh release` は ask で毎回確認。allow なし） |
 | 設定の構造検査 | `.claude/hooks/check_setup.py`（Stop hook、timeout 20秒）＋テスト |
 | 完了の定義 / CI | `tools/check.py`、`.github/workflows/check.yml`、`Makefile` |
 | 配布物 | `skills/`、`workflows/`、`agents/`（README の一覧を参照） |
@@ -22,6 +23,7 @@ PR #5（agent harness）から移植したもの: `tools/check.py`（このリ�
 
 - **ワークフローは模擬実行のみ**。本物の実行（Workflow ツール）はこのセッションで行っていない。最初は小さな args で試す
 - 新しいセッションでの読み込み確認（`/memory`、`/hooks`、`/agents`、`/permissions`、`/workflows`）は未実施
+- ask ルールは Claude が書くコマンドの文字列に一致させるだけで、別の書き方（スクリプト経由など）は止められない。セキュリティ境界ではない（https://code.claude.com/docs/en/permissions, 参照日 2026-10-28）
 - Read/Edit deny は Python/Node スクリプト内の読み書きや `grep -r` を防げない。OS レベルの制限は Sandbox（このクラウドコンテナには bubblewrap が無く未使用）
 - `tasks/` は Git 追跡外。クラウドセッションは使い捨てなので、持ち越す引き継ぎは PR の説明か `docs/` に書く
 

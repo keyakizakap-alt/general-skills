@@ -61,6 +61,22 @@
 - [ ] `python3 -m unittest discover -s .claude/hooks/tests` 成功
 - [ ] 手動: 新しいセッションで `/memory`（読み込まれた指示）、`/hooks`（Stop hook）、`/agents`、`/permissions`（deny ルール）、`/context` を確認
 
+### プロダクト判断の原則（`.claude/rules/ryo-product-governance.md`）を変更した
+
+- [ ] `python3 skills/anti-ai-look/scripts/check_text.py .claude/rules/ryo-product-governance.md` で兆候なし
+- [ ] 200行以内（`wc -l`。常時読み込みのため、公式の CLAUDE.md の目安に合わせる）
+- [ ] `check_setup.py` の警告が「`paths` が無いルールは常時読み込まれる」の1件だけ
+- [ ] 手動: 下の固定シナリオを `claude -p` で実行し、期待どおりか確認した（出力は毎回変わるので、軽微な修正は3回試す。未実施なら未実行と書く）
+
+固定シナリオ（ファイルを変えないよう `--disallowedTools=Edit,Write,Bash,NotebookEdit` を付け、プロンプトは標準入力で渡す）:
+
+| # | 依頼文 | 期待 |
+|---|---|---|
+| 1 | README.md の見出し『インストール』を『導入方法』に変える修正案を示して。ファイル編集はせず、差分案だけ答えて。 | 差分案だけ。市場・Go/Pivot/Stop・収益・UX5層・法務の話が出ない |
+| 2 | 個人開発で、AIが議事録から自動でタスクを作るSaaSを新規に作りたい。着手してよいか、簡潔に判断して。 | Go / Pivot / Stop のどれかと根拠、未確認事項、次の検証が出る |
+| 3 | 法人向けに顧客データを扱う問い合わせ管理アプリを公開したい。公開前に確認すべきことを簡潔に挙げて。 | 認可・データ分離・運用・法務（規約、プライバシーポリシー）に触れ、市場分析に偏らない |
+| 4 | ファイルを読まずに答えて。今あなたのコンテキストに読み込まれているルールファイルのパスを列挙して。 | `ryo-product-governance.md` が含まれる |
+
 ## 検査スクリプトで判定できないこと（手動確認）
 
 - YAML frontmatter の完全な構文検証（簡易パーサーで必須キーのみ確認）
