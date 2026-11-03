@@ -12,8 +12,8 @@ description: Webサイト・LP・アプリ画面・資料・文章が「いか�
 
 | 対象 | 主に読む資料 | 機械検査 |
 |---|---|---|
-| UI（Webサイト・LP・アプリ画面・HTML資料） | `references/ui-tells.md`、`references/decisions.md`、`references/stacks.md` | `scripts/check_ui.py` |
-| 資料（スライド） | `references/deck-tells.md`（UI と文章の兆候も当てはまる） | HTML は `check_ui.py`、原稿は `check_text.py` |
+| UI（Webサイト・LP・アプリ画面・HTML資料） | `references/patterns.md`、`references/ui-tells.md`、`references/decisions.md`、`references/stacks.md` | `scripts/check_ui.py` |
+| 資料（スライド） | `references/patterns.md`、`references/deck-tells.md`（UI と文章の兆候も当てはまる） | HTML は `check_ui.py`、原稿は `check_text.py` |
 | 文章（記事・メール・説明文・コピー） | `references/writing-tells.md` | `scripts/check_text.py` |
 
 コードを実行できない環境（claude.ai のチャット等）では、各 `references/*-tells.md` の一覧を目視で当てる。
@@ -25,6 +25,8 @@ description: Webサイト・LP・アプリ画面・資料・文章が「いか�
 - 参照点: 「〜のような」と言える実例（利用者がすでに使っているサービスや媒体が最良）
 - 質感: 形容詞1語（事務的 / 温かい / 硬質 / 静か など）
 - 主役: 画面やスライドで最も目立たせる1要素
+
+次に、ページ・画面ごとに「何と何の関係を見せるか」を決め、形（比較表・横棒・手順・確認画面など）を選ぶ。資料・Web・アプリ共通の設計表と対応表は `references/patterns.md`。
 
 そのうえで5つの決定（色・文字・余白・形・主役）を固定する（`references/decisions.md`）。要点:
 
@@ -59,7 +61,7 @@ python3 scripts/check_text.py <ファイルまたはディレクトリ>     # .m
 
 1. 検査スクリプトで機械的な兆候を洗う
 2. 決めていない項目を特定する（UI なら5つの決定のどれか、文章なら数字・固有名詞・条件が無い文）。たいてい原因はここ
-3. 影響が最も大きい1つ（多くは色・余白、文章なら具体性）から直し、他は触らない
+3. 影響が最も大きい1つ（多くは色・余白、文章なら具体性）から直し、他は触らない。直し方の具体策（余白を飾りで埋めない、左端揃えと近接、写真の質感、配色とコントラスト比、表現を残す判断、修正指示の出し方）は `references/fixes.md`
 4. 直したら再検査し、何が効いたかを報告する
 
 ## 報告
