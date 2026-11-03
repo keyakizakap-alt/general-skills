@@ -10,6 +10,7 @@ check:  ## 完了の定義（CI と同じ）。NG があれば失敗
 test:  ## ワークフローの模擬実行と設定検査のテストだけ
 	node tools/test_workflows.mjs
 	python3 -m unittest discover -s .claude/hooks/tests
+	python3 -m unittest discover -s hooks/tests
 
 zip:  ## claude.ai 用のスキルZIPを dist/ に作る
 	python3 tools/build_skill_zip.py

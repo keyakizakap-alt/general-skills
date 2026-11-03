@@ -20,6 +20,7 @@
 | `python3 skills/prompt-architect/scripts/lint_prompt.py <file>` | プロンプト本文 | なし |
 | `python3 .claude/hooks/check_setup.py` | エージェント用設定の構造 | なし |
 | `python3 -m unittest discover -s .claude/hooks/tests` | 上記検査スクリプト自体のテスト | 一時ディレクトリのみ |
+| `python3 -m unittest discover -s hooks/tests` | 配布する quality-gate フックのテスト | 一時ディレクトリのみ |
 
 ## 作業別の合格条件
 
@@ -33,6 +34,13 @@
 - [ ] どのチャットでも動くか: frontmatter は `name` と `description` だけ、本文が `@` 参照・`${CLAUDE_PROJECT_DIR}`・このリポジトリのファイルに依存していない、ファイルを書けない環境での代替手順がある
 - [ ] `workspace-setup/assets/check_setup.py` を変えたら `.claude/hooks/check_setup.py` にコピーし、テストが通る（同一性はテストで検査）
 - [ ] 手動: `/<skill-name>` で起動し、description どおりの場面で使えるか確認（未実施なら未実行と書く）
+
+### 配布フック（`hooks/`）を追加・変更した
+
+- [ ] `python3 -m unittest discover -s hooks/tests` 成功
+- [ ] 設定ファイルが無いプロジェクトでは何もしない（オプトイン）ことをテストで確認している
+- [ ] README のフック一覧と `.claude-plugin/` の説明文を更新した
+- [ ] 手動: プラグインを有効にした新しいセッションで `/hooks` に表示され、失敗するコマンドで作業が続くことを確認（未実施なら未実行と書く）
 
 ### ワークフロー（`workflows/`）を追加・変更した
 

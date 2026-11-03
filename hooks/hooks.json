@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/quality_gate.py\"",
+            "timeout": 900,
+            "statusMessage": "quality-gate: プロジェクトの検査コマンドを実行中"
+          }
+        ]
+      }
+    ]
+  }
+}

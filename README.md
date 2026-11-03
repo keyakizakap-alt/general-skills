@@ -13,6 +13,7 @@
 | [`deliverable-check`](skills/deliverable-check/) | 成果物や差分を合格条件で検査し、条件ごとに成功/失敗/未実行/未確認と証拠を報告する。成果物は直さない。 |
 | [`anti-ai-look`](skills/anti-ai-look/) | UI・資料・文章が「いかにもAIが作った」見た目や文章になるのを防ぎ、なっているものを直す。作る前に参照点・質感・主役と5つの決定を固定し、最後に `check_ui.py`（UI）と `check_text.py`（文章）で兆候の重なりを機械検査する。 |
 | [`deck-sprint`](skills/deck-sprint/) | 提案書・報告資料・プレゼンを、構成案の比較→執筆→事実確認→組版→体裁検査まで一気に仕上げる。pptx / claude.ai の Slides・Docs / HTML に対応。Claude Code では `deck-build` ワークフローを使う。 |
+| [`quality-gate`](skills/quality-gate/) | 作業の終わりに品質検査が必ず走る仕組みを、どのリポジトリ・チャットでも同じ手順で用意する。Claude Code ではプロジェクトの `.claude/quality-gate.json` に検査コマンドを登録し、同梱の Stop フックで自動実行させる。資料は `design-reviewer`・`fact-checker` で見直す。チャットでは同じ検査を手順として実行する。 |
 
 ## ワークフロー一覧（Claude Code 専用・プラグインに同梱）
 
@@ -33,7 +34,22 @@
 | [`deliverable-reviewer`](agents/deliverable-reviewer.md) | 成果物・差分の独立レビュー | Read / Grep / Glob |
 | [`researcher`](agents/researcher.md) | 一次情報中心の調査（出典・取得日・公式/非公式つき） | Read / Grep / Glob / WebSearch / WebFetch |
 | [`fact-checker`](agents/fact-checker.md) | 数字・仕様・引用の事実確認（反証を探す立場） | Read / Grep / Glob / WebSearch / WebFetch |
+| [`design-reviewer`](agents/design-reviewer.md) | 資料（PPTX・PDF・HTML）の見た目の独立レビュー（番号のゼロ埋め、配置の反復、はみ出し、抽象的な見出し） | Read / Grep / Glob |
 | [`ui-checker`](agents/ui-checker.md) | Playwright でスマホ幅・PC幅の表示確認。コードを変更しないのは指示による約束（Bash を持つため仕組みでは防げない） | Read / Glob / Grep / Bash |
+
+## フック（プラグインに同梱）
+
+| フック | 内容 |
+|---|---|
+| [`quality_gate.py`](hooks/quality_gate.py)（Stop） | プロジェクトに `.claude/quality-gate.json` があるときだけ、応答の終わりにその `command` を実行する。失敗すると終了コード2で Claude に修正を続けさせ、同じセッションで `max_retries`（既定3）回を超えたら警告だけ出して止める。前回成功時から作業ツリーが変わっていなければ実行しない。設定ファイルが無いプロジェクトでは何もしない。`QUALITY_GATE_DISABLE=1` で無効 |
+
+設定例（プロジェクトの `.claude/quality-gate.json`）:
+
+```json
+{"command": "python3 -m unittest discover -s tests", "timeout": 600, "max_retries": 3}
+```
+
+注意: 設定ファイルのコマンドは確認なしで実行される。信頼できないリポジトリを開く前に中身を確認するか、`QUALITY_GATE_DISABLE=1` を設定する。
 
 ## mod 一覧
 
@@ -97,6 +113,20 @@ claude.ai → Settings → Capabilities（Features）→ Skills から `dist/<na
 - claude.ai の カスタムスキルは**ユーザー個人単位**。チームで使うには各自がアップロードする
 - claude.ai に登録したスキルは Claude Code（クラウド / Cowork / claude.ai ログイン中のターミナル）に同期される。API キー認証のセッション、Bedrock 等では同期されない。Claude API で使う場合は別途登録する（同上, 参照日 2026-10-05）
 - 同期されたスキルをローカルのターミナルで使うと、本文中の `@` 参照と `${CLAUDE_PROJECT_DIR}` は展開されない。本リポジトリのスキルはこれらに依存しない書き方にしている
+
+### D. claude.ai にプラグインとして登録する（チャット・Cowork・Claude Code へ同期）
+
+claude.ai → Customize → Plugins → Add から、GitHub リポジトリ `keyakizakap-alt/general-skills` をマーケットプレイスとして追加し、`general-skills` を有効にする（またはリポジトリのZIPを **Upload plugin** でアップロードする）。
+アカウントに入れたプラグインは、次のセッション開始時に Claude Code へ同期プラグイン（`<name>@synced`）として届く（[公式: Plugin feature support](https://claude.com/docs/plugins/platform-support), 参照日 2026-11-03）。
+
+| 部品 | チャット | Cowork | Claude Code |
+|---|---|---|---|
+| スキル | 使える | 使える | 使える |
+| サブエージェント | 無視される | 使える | 使える |
+| フック（quality-gate） | 無視される | 使える | 使える |
+
+チャットではフックとサブエージェントが動かないため、`quality-gate` スキルが同じ検査を手順として実行する。
+リポジトリの `.claude/settings.json` で有効にしたプラグインはクラウドセッションでは読み込まれない（[公式: cloud environments](https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup), 参照日 2026-11-03）。クラウドで使うにはこの D で登録する。
 
 ## 使い方
 
