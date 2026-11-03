@@ -38,6 +38,7 @@ description: 作業の終わりに必ず品質検査が走る仕組みを、ど�
 | 対象 | 確認役 | 渡すもの |
 |---|---|---|
 | 資料の見た目（PPTX・PDF・HTML） | `design-reviewer` | ページ画像のパス、規約、ページ数 |
+| Web・アプリの画面 | `ui-checker` で撮影 → `design-reviewer` | スマホ幅・PC幅のスクリーンショット、画面の目的、デザインシステム |
 | 数字・仕様・製品名・日付 | `fact-checker` | 主張の一覧と元資料 |
 | 差分全体・合格条件 | `deliverable-reviewer` | 合格条件、差分、検査結果 |
 
