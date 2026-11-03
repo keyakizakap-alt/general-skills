@@ -31,7 +31,7 @@ class QualityGateTest(unittest.TestCase):
         (self.root / '.claude' / 'quality-gate.json').write_text(json.dumps(kw), encoding='utf-8')
 
     def run_gate(self, session='s1', **env):
-        e = dict(os.environ, CLAUDE_PROJECT_DIR=str(self.root), CLAUDE_PLUGIN_DATA=str(self.data), **env)
+        e = dict(os.environ, CLAUDE_PROJECT_DIR=str(self.root), QUALITY_GATE_STATE_DIR=str(self.data), **env)
         payload = json.dumps({'session_id': session, 'cwd': str(self.root)})
         return subprocess.run([sys.executable, str(SCRIPT)], input=payload, capture_output=True,
                               text=True, env=e, timeout=60)
@@ -53,7 +53,10 @@ class QualityGateTest(unittest.TestCase):
 
     def test_stops_blocking_after_max_retries(self):
         self.config(command='exit 1', max_retries=2)
-        codes = [self.run_gate().returncode for _ in range(3)]
+        codes = []
+        for i in range(3):
+            (self.root / f'edit{i}.txt').write_text('x', encoding='utf-8')  # 修正を試みた想定で作業ツリーを変える
+            codes.append(self.run_gate().returncode)
         self.assertEqual(codes, [2, 2, 0], f'再試行上限の扱いが違う: {codes}。'
                          '直し方: 同じセッションで max_retries 回を超えたら 0 を返し systemMessage で警告する')
 
@@ -68,6 +71,16 @@ class QualityGateTest(unittest.TestCase):
         self.run_gate()
         runs = marker.read_text().count('x')
         self.assertEqual(runs, 1, f'変更が無いのに {runs} 回実行した。直し方: 前回成功時の fingerprint と同じなら実行しない')
+
+    def test_second_call_in_same_stop_reuses_result(self):
+        marker = self.root / 'count.txt'
+        (self.root / '.gitignore').write_text('count.txt\n', encoding='utf-8')
+        self.config(command=f'echo x >> "{marker}"; exit 1')
+        first, second = self.run_gate(), self.run_gate()
+        self.assertEqual((first.returncode, second.returncode), (2, 2),
+                         '2回目の呼び出しでも失敗を返すべき。直し方: last の結果を再利用して同じ終了コードを返す')
+        runs = marker.read_text().count('x')
+        self.assertEqual(runs, 1, f'同じ状態で {runs} 回実行した。直し方: DEDUP_SECONDS 以内の同じ fingerprint は再実行しない')
 
     def test_disable_env(self):
         self.config(command='exit 1')

@@ -17,10 +17,17 @@ import json
 import os
 import subprocess
 import sys
+import time
+
+try:
+    import fcntl  # POSIX のみ。Windows ではロックせずに動かす
+except ImportError:
+    fcntl = None
 from pathlib import Path
 
 CONFIG = Path('.claude') / 'quality-gate.json'
 TAIL_LINES = 60
+DEDUP_SECONDS = 3  # 同じ Stop で並列に呼ばれた2つ目だけを拾う。修正後の次の停止までは数秒以上かかる
 
 
 def project_dir(payload):
@@ -28,8 +35,9 @@ def project_dir(payload):
 
 
 def state_dir():
-    base = os.environ.get('CLAUDE_PLUGIN_DATA') or str(Path.home() / '.cache' / 'quality-gate')
-    path = Path(base) / 'quality-gate'
+    # プラグインとリポジトリの両方に同じフックがあっても結果を共有できるよう、置き場所を固定する。
+    base = os.environ.get('QUALITY_GATE_STATE_DIR') or str(Path.home() / '.cache' / 'quality-gate')
+    path = Path(base)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -98,10 +106,24 @@ def main():
 
     key = hashlib.sha256(str(root.resolve()).encode()).hexdigest()[:16]
     state_path = state_dir() / f'{key}.json'
+    with open(state_dir() / f'{key}.lock', 'w') as lock:
+        if fcntl:
+            fcntl.flock(lock, fcntl.LOCK_EX)  # 並列に呼ばれても検査を同時に走らせない
+        return evaluate(root, config, payload, state_path)
+
+
+def evaluate(root, config, payload, state_path):
     state = read_state(state_path)
     fp = fingerprint(root, config['command'])
     if fp is not None and state.get('passed') == fp:
         return 0
+    last = state.get('last') or {}
+    if fp is not None and last.get('fp') == fp and time.time() - last.get('t', 0) < DEDUP_SECONDS:
+        # 同じ Stop で別の場所（プラグインとリポジトリ設定）から2回呼ばれたとき、結果を再利用する。
+        if last.get('ok'):
+            return 0
+        print(last.get('message', 'quality-gate: 検査が失敗した'), file=sys.stderr)
+        return last.get('code', 2)
 
     try:
         r = subprocess.run(config['command'], shell=True, cwd=root, capture_output=True,
@@ -112,7 +134,7 @@ def main():
 
     session = payload.get('session_id', '')
     if ok:
-        state.update(passed=fp, failures={})
+        state.update(passed=fp, failures={}, last={'fp': fp, 'ok': True, 't': time.time()})
         state_path.write_text(json.dumps(state), encoding='utf-8')
         return 0
 
@@ -122,13 +144,18 @@ def main():
     state_path.write_text(json.dumps(state), encoding='utf-8')
     tail = '\n'.join(output.strip().splitlines()[-TAIL_LINES:])
     if failures[session] > config['max_retries']:
+        state['last'] = {'fp': fp, 'ok': True, 't': time.time()}
+        state_path.write_text(json.dumps(state), encoding='utf-8')
         print(json.dumps({'systemMessage': f'quality-gate: `{config["command"]}` が'
                           f'{config["max_retries"]}回続けて失敗したため、止めずに終了します。未解決のまま完了と報告しないこと。'},
                          ensure_ascii=False))
         return 0
-    print(f'quality-gate: 検査コマンド `{config["command"]}` が失敗した'
-          f'（{failures[session]}/{config["max_retries"]}回目）。原因を直して再実行するまで完了と報告しないこと。\n'
-          f'--- 出力の末尾 ---\n{tail}', file=sys.stderr)
+    message = (f'quality-gate: 検査コマンド `{config["command"]}` が失敗した'
+               f'（{failures[session]}/{config["max_retries"]}回目）。原因を直して再実行するまで完了と報告しないこと。\n'
+               f'--- 出力の末尾 ---\n{tail}')
+    state['last'] = {'fp': fp, 'ok': False, 't': time.time(), 'message': message, 'code': 2}
+    state_path.write_text(json.dumps(state), encoding='utf-8')
+    print(message, file=sys.stderr)
     return 2
 
 
