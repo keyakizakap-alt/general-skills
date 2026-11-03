@@ -197,6 +197,19 @@ def check_agent_setup():
     return errors, []
 
 
+def check_plugin_hooks():
+    """プラグインに同梱する hooks/hooks.json の構文と、quality_gate.py のテスト。"""
+    errors = []
+    data = load_json(ROOT / "hooks" / "hooks.json", errors)
+    if data is not None and not isinstance(data.get("hooks"), dict):
+        errors.append("hooks/hooks.json に \"hooks\" オブジェクトがない")
+    r = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "hooks/tests")],
+                       capture_output=True, text=True, timeout=120, cwd=ROOT)
+    if r.returncode != 0:
+        errors.append("quality_gate のテストが失敗: " + r.stderr.strip().splitlines()[-1])
+    return errors, []
+
+
 def check_anti_ai_scripts():
     """anti-ai-look の検査スクリプトの回帰: 悪い例は不合格（1）、良い例は合格（0）であり続けること。"""
     errors = []
@@ -245,6 +258,7 @@ CHECKS = [
     ("Python の構文", check_python_compiles),
     ("ワークフロー（構文・模擬実行）", check_workflows),
     ("エージェント用設定", check_agent_setup),
+    ("プラグインのフック", check_plugin_hooks),
     ("AIっぽさ検査スクリプトの回帰", check_anti_ai_scripts),
     ("プロンプト例のリンター回帰", check_prompt_examples_lint),
     ("秘密情報", check_no_secrets),
