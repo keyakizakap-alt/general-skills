@@ -11,7 +11,7 @@
 | [`workspace-setup`](skills/workspace-setup/) | 開いているプロジェクトに、AIエージェントが作業しやすい環境（AGENTS.md / CLAUDE.md の分割、パス限定ルール、作業・検査スキル、読み取り専用の確認役、秘密ファイルの deny、構造検査の Stop hook）を既存設定を壊さずに構築し、検査して報告する。チャットのみの環境ではファイル一式を出力する。 |
 | [`work-loop`](skills/work-loop/) | 複数手順の作業を「合格条件→小さく実行→検査→修正→引き継ぎ」で回し、同じ失敗2回・修正3巡で止めて記録を残す。何を作るかは他スキルに任せ、進め方と停止条件だけを扱う。 |
 | [`deliverable-check`](skills/deliverable-check/) | 成果物や差分を合格条件で検査し、条件ごとに成功/失敗/未実行/未確認と証拠を報告する。成果物は直さない。 |
-| [`anti-ai-look`](skills/anti-ai-look/) | UI・資料・文章が「いかにもAIが作った」見た目や文章になるのを防ぎ、なっているものを直す。作る前に、ページ・画面ごとの設計表と「情報の関係→形」の対応表（資料・Web・アプリ共通、`patterns.md`）で見せ方を選び、参照点・質感・主役と5つの決定を固定する。最後に `check_ui.py`（UI）と `check_text.py`（文章）で兆候の重なりを機械検査する。 |
+| [`anti-ai-look`](skills/anti-ai-look/) | UI・資料・文章が「いかにもAIが作った」見た目や文章になるのを防ぎ、なっているものを直す。作る前に、ページ・画面ごとの設計表と「情報の関係→形」の対応表（資料・Web・アプリ共通、`patterns.md`）で見せ方を選び、参照点・質感・主役と5つの決定を固定する。Webページでは素材の棚卸し・訪問者の用件・見出しとラベルの規則・実在ブランドの色の取得・既存サイトの作り直し・別の文脈での確認を `page-build.md` と `brand-redesign-review.md` で扱う（Hallmark 由来）。最後に `check_ui.py`（UI）と `check_text.py`（文章）で兆候の重なりを機械検査する。 |
 | [`deck-sprint`](skills/deck-sprint/) | 提案書・報告資料・プレゼン・社内ガイドを、構成案の比較→ページ設計表→執筆→事実確認→組版→体裁検査→納品まで一気に仕上げる。pptx / claude.ai の Slides・Docs / HTML に対応。番号は1始まり・ゼロ埋めなし、試算と実績を分ける。python-pptx で組む部品 `slide_kit.py` と、枚数・ノート・ページ表記・ゼロ埋めを検査する `check_deck.py` を同梱（どちらも python-pptx が必要）。Claude Code では `deck-build` ワークフローを使う。 |
 | [`quality-gate`](skills/quality-gate/) | 作業の終わりに品質検査が必ず走る仕組みを、どのリポジトリ・チャットでも同じ手順で用意する。Claude Code ではプロジェクトの `.claude/quality-gate.json` に検査コマンドを登録し、同梱の Stop フックで自動実行させる。資料は `design-reviewer`・`fact-checker` で見直す。チャットでは同じ検査を手順として実行する。 |
 

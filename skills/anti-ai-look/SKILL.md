@@ -12,7 +12,8 @@ description: Webサイト・LP・アプリ画面・資料・文章が「いか�
 
 | 対象 | 主に読む資料 | 機械検査 |
 |---|---|---|
-| UI（Webサイト・LP・アプリ画面・HTML資料） | `references/patterns.md`、`references/ui-tells.md`、`references/decisions.md`、`references/stacks.md` | `scripts/check_ui.py` |
+| UI（Webサイト・LP・アプリ画面・HTML資料） | `references/patterns.md`、`references/ui-tells.md`、`references/decisions.md`、`references/stacks.md`、`references/page-build.md`（Webページを作るときの追加規則） | `scripts/check_ui.py` |
+| 実在ブランドのページ、`design.md` での固定、既存サイトの作り直し、作った後の確認 | `references/brand-redesign-review.md` | 同上 |
 | 資料（スライド） | `references/patterns.md`、`references/deck-tells.md`（UI と文章の兆候も当てはまる） | HTML は `check_ui.py`、原稿は `check_text.py` |
 | 文章（記事・メール・説明文・コピー） | `references/writing-tells.md` | `scripts/check_text.py` |
 
@@ -25,6 +26,8 @@ description: Webサイト・LP・アプリ画面・資料・文章が「いか�
 - 参照点: 「〜のような」と言える実例（利用者がすでに使っているサービスや媒体が最良）
 - 質感: 形容詞1語（事務的 / 温かい / 硬質 / 静か など）
 - 主役: 画面やスライドで最も目立たせる1要素
+
+Webページでは、先に素材を棚卸しし（実在・画像・無いもの）、訪問者の用件（予約・購入・申込など）から操作の位置と節と終わり方を決め、訪問者が覚えて帰る1点を選ぶ（`references/page-build.md` の2）。無い数値・お客様の声・ロゴは作らない。実在の会社・ブランドの色と書体は記憶で書かず、公式サイトから取得して出典を残す（`references/brand-redesign-review.md` の1）。
 
 次に、ページ・画面ごとに「何と何の関係を見せるか」を決め、形（比較表・横棒・手順・確認画面など）を選ぶ。資料・Web・アプリ共通の設計表と対応表は `references/patterns.md`。
 
@@ -44,6 +47,8 @@ description: Webサイト・LP・アプリ画面・資料・文章が「いか�
 - 既定値を使わない（フレームワークの既定パレット・既定書体・既定の角丸と影）
 - 同じ形を繰り返さない（カード3枚、全セクション中央揃え、全スライド箇条書き）
 - 誇張語・万能の形容（革新的、シームレス、包括的、強力な）の代わりに、主語・数字・条件を書く
+- Webページは、ナビとヒーローだけを作った段階で別の文脈で確認してから、下の節を作る（`references/brand-redesign-review.md` の4）
+- 見出しの上の予告ラベル、英大文字と広い字間の小さな文字、中点つなぎや矢印つきリンクを使わない。規則の強さ（必須・既定の癖・仕上げ）と例外の記録のしかたは `references/page-build.md` の1と3
 
 ## 3. 検査する
 
@@ -63,6 +68,8 @@ python3 scripts/check_text.py <ファイルまたはディレクトリ>     # .m
 2. 決めていない項目を特定する（UI なら5つの決定のどれか、文章なら数字・固有名詞・条件が無い文）。たいてい原因はここ
 3. 影響が最も大きい1つ（多くは色・余白、文章なら具体性）から直し、他は触らない。直し方の具体策（余白を飾りで埋めない、左端揃えと近接、写真の質感、配色とコントラスト比、表現を残す判断、修正指示の出し方）は `references/fixes.md`
 4. 直したら再検査し、何が効いたかを報告する
+
+既存のサイトを作り直すときは、先に深さ（全面・着せ替え・磨き）を決め、内容・リンクやフォームなどの配線・ブランドを残す（`references/brand-redesign-review.md` の3）。
 
 ## 報告
 

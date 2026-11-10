@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "general-skills",
   "displayName": "General Skills",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "業務で使える汎用スキル集。スキル（prompt-architect、ryo-product-delivery、deck-sprint、anti-ai-look、workspace-setup、work-loop、deliverable-check、quality-gate）、資料作成とアプリ開発のワークフロー（deck-build、app-design、app-implement、verify-fix）、確認役のサブエージェント（deliverable-reviewer、researcher、fact-checker、ui-checker、資料とWeb・アプリ画面を見る design-reviewer）と、検査コマンドを応答の終わりに自動実行する Stop フック（quality-gate、プロジェクトが設定したときだけ動く）を収録。",
   "author": {
     "name": "keyakizakap-alt",

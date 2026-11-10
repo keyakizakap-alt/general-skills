@@ -73,6 +73,22 @@ RULES = [
     ("紫系の基調色", "weak", r"(?:bg|text|border|ring)-(?:indigo|violet|purple)-\d{2,3}",
      "Tailwind の既定色", "業種と印象から基準色を選び直す"),
 
+    # 以下4つは Hallmark（https://github.com/Nutlope/hallmark, MIT, 参照日 2026-11-10）の規則から。詳細は references/page-build.md
+    ("字間を広げた大文字ラベル", "weak",
+     r"\buppercase\b[^\"'\n]*\btracking-(?:wide|wider|widest|\[)|\btracking-(?:wide|wider|widest|\[)[^\"'\n]*\buppercase\b"
+     r"|text-transform:\s*uppercase[^}\n]*letter-spacing:\s*0?\.(?:0[4-9]|[1-9])"
+     r"|letter-spacing:\s*0?\.(?:0[4-9]|[1-9])[^}\n]*text-transform:\s*uppercase",
+     "見出しの上の予告ラベルやナビで最頻出", "本文の書体で一段小さく、大文字にせず字間も付けない"),
+
+    ("中点つなぎ", "weak", r"·[^·\n]{1,40}·|&middot;[^\n]{1,40}&middot;",
+     "メタ情報をつなぐテンプレートの句読点（和文の「・」は対象外）", "改行・列・細線で分ける"),
+
+    ("矢印つきリンク", "weak", r"(?:→|&rarr;)\s*</(?:a|button|Link)\b",
+     "リンクやボタンの決まり文句", "操作名を動詞で書く（「料金表を見る」）"),
+
+    ("transition-all", "weak", r"\btransition-all\b|transition:\s*all\b",
+     "すべてのプロパティを動かす既定値", "動かすプロパティを列挙する。transform と opacity だけを動かす"),
+
     ("中央揃えの多用", "weak", None,  # 専用処理（出現回数で判定）
      "全セクション中央揃えは強い兆候", "本文は左揃え。中央揃えは3行以内の短文に限る"),
 ]
