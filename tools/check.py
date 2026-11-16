@@ -224,6 +224,19 @@ def check_anti_ai_scripts():
     return errors, []
 
 
+def check_form_scripts():
+    """task-forms / research-brief の検査スクリプトの回帰: 悪い例は不合格（1）、良い例は合格（0）であり続けること。"""
+    errors = []
+    cases = [("task-forms", "check_form.py", "good.md", 0), ("task-forms", "check_form.py", "bad.md", 1),
+             ("research-brief", "check_sources.py", "good.md", 0), ("research-brief", "check_sources.py", "bad.md", 1)]
+    for skill, script, fixture, expected in cases:
+        r = subprocess.run([sys.executable, str(SKILLS / skill / "scripts" / script),
+                            str(ROOT / "tools" / "fixtures" / skill / fixture)], capture_output=True, text=True)
+        if r.returncode != expected:
+            errors.append(f"{skill}/{script} {fixture}: 終了コード {r.returncode}（期待 {expected}）")
+    return errors, []
+
+
 def check_prompt_examples_lint():
     errors = []
     for pattern in LINT_TARGETS:
@@ -260,6 +273,7 @@ CHECKS = [
     ("エージェント用設定", check_agent_setup),
     ("プラグインのフック", check_plugin_hooks),
     ("AIっぽさ検査スクリプトの回帰", check_anti_ai_scripts),
+    ("型・出典の検査スクリプトの回帰", check_form_scripts),
     ("プロンプト例のリンター回帰", check_prompt_examples_lint),
     ("秘密情報", check_no_secrets),
 ]

@@ -75,4 +75,4 @@ python3 scripts/check_text.py <ファイルまたはディレクトリ>     # .m
 - 未確認: <見た目の目視確認ができなかった等>
 ```
 
-関連: 資料全体の作り方は `deck-sprint`、アプリ全体の進め方は `ryo-product-delivery`。どちらもこのスキルの基準で仕上げを確認できる。
+関連: 資料全体の作り方は `deck-sprint`、アプリ全体の進め方は `ryo-product-delivery`、文章の型（回答・文面・報告など）の選び方は `task-forms`。どちらもこのスキルの基準で仕上げを確認できる。
