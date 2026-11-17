@@ -18,6 +18,8 @@
 | `python3 tools/build_skill_zip.py` | claude.ai 制約（name 形式・予約語・description 長） | `dist/` にZIPを書き出す（Git追跡外） |
 | `claude plugin test mods/vibe-deck` | vibe-deck の動作テスト | なし（bun で実行） |
 | `python3 skills/prompt-architect/scripts/lint_prompt.py <file>` | プロンプト本文 | なし |
+| `python3 skills/task-forms/scripts/check_form.py <file>` | 回答・文書の形（前置き・締めの定型、穴埋めの残り、出典の書式） | なし |
+| `python3 skills/research-brief/scripts/check_sources.py <file>` | 調査メモの出典（書式、本文の `[n]` との対応） | なし |
 | `python3 .claude/hooks/check_setup.py` | エージェント用設定の構造 | なし |
 | `python3 -m unittest discover -s .claude/hooks/tests` | 上記検査スクリプト自体のテスト | 一時ディレクトリのみ |
 | `python3 -m unittest discover -s hooks/tests` | 配布する quality-gate フックのテスト | 一時ディレクトリのみ |

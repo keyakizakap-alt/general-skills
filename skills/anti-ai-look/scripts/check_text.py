@@ -33,6 +33,10 @@ RULES = [
     ("定型の前置き・締め", "strong",
      r"について解説します|を見ていきましょう|本記事では|いかがでしたか|参考になれば幸いです|ぜひ(?:試して|活用して|参考に)",
      "内容の無い定型文", "削る。いきなり本題に入り、締めは次の一手を書く"),
+    ("応答の定型", "strong",
+     r"承知(?:いた)?しました|ご質問ありがとうございます|素晴らしい(?:質問|ご質問|視点)|お役に立てれば"
+     r"|ご不明な?点が(?:あれば|ございましたら)|お気軽にお(?:知らせ|問い合わせ|尋ね)",
+     "チャットの応答の決まり文句が成果物に残っている", "削る。成果物は1文目から中身を書く"),
     ("英語の常套句", "strong",
      r"\b(?:delve|tapestry|testament to|game[- ]changer|cutting[- ]edge|supercharge|unlock the power)\b"
      r"|In today's fast[- ]paced|It's important to note|Let's dive in",
@@ -43,6 +47,15 @@ RULES = [
     ("断定回避", "weak",
      r"と言えるでしょう|と考えられます|ではないでしょうか|かもしれません",
      "多用すると責任を避けた文に見える", "事実は言い切り、不確かなものは「未確認」と1回だけ明示する"),
+    ("冗長な言い回し", "weak",
+     r"することができます|することが可能です|という形になります|させていただきます",
+     "同じ意味を長く言っている", "「できる」「〜する」に縮める"),
+    ("予告の言い回し", "weak",
+     r"重要なのは|ポイントは(?:以下|次)|結論から言うと|まとめると|端的に言えば|言い換えれば",
+     "中身の前に予告を置いている", "予告を削り、中身をそのまま書く"),
+    ("何でも3つ", "weak",
+     r"(?:3|３|三)つの(?:ポイント|理由|特徴|メリット|ステップ|柱|視点)",
+     "数を3に合わせた疑い", "実際の数で書く。見出しは中身の要約にする"),
     ("英語の万能語", "weak",
      r"\b(?:leverage|seamless(?:ly)?|robust|holistic|streamline)\b",
      "何をどうするかが曖昧", "具体的な動作と対象を書く"),
@@ -50,6 +63,7 @@ RULES = [
     ("見出しの絵文字", "strong", None, "装飾の穴埋め", "見出しは内容を表す言葉だけにする"),
     ("同じ文末の連続", "weak", None, "単調で機械的に読める", "文末を変える、文をつなぐ・分ける"),
     ("em dash の多用", "weak", None, "英語のAI文章で頻出", "文を分けるか、カンマ・括弧にする"),
+    ("対比の型の多用", "weak", None, "「AではなくB」の繰り返しは型として目立つ", "言いたいことをそのまま書く。否定する相手が実在するときだけ使う"),
 ]
 EMOJI = re.compile("[\U0001F300-\U0001FAFF\U0001F000-\U0001F0FF⭐✨⚡✅❌]")
 
@@ -85,7 +99,7 @@ def iter_inputs(target):
 
 
 def scan(inputs):
-    hits, total_lines, bold, dashes = {}, 0, [], []
+    hits, total_lines, bold, dashes, contrasts = {}, 0, [], [], []
     for name, suffix, raw in inputs:
         lines = to_text(raw, suffix)
         total_lines += sum(1 for l in lines if l.strip())
@@ -99,6 +113,7 @@ def scan(inputs):
                 hits.setdefault("見出しの絵文字", []).append((name, i, excerpt))
             bold += [(name, i, excerpt)] * len(re.findall(r"\*\*[^*\n]+\*\*|<(?:b|strong)>", line))
             dashes += [(name, i, excerpt)] * line.count("—")
+            contrasts += [(name, i, excerpt)] * len(re.findall(r"ではなく|だけでなく|not just|not only", line, re.I))
             # 同じ文末の連続（文単位）
             for sent in re.findall(r"[^。！？]+[。！？]", line):
                 end = re.search(r"(です|ます|でした|ました|である|だ)[。！？]$", sent)
@@ -116,6 +131,9 @@ def scan(inputs):
     if len(dashes) >= 3:
         hits["em dash の多用"] = list(dict.fromkeys(dashes))[:2] + [(None, 0, f"— が {len(dashes)} か所")]
         counts["em dash の多用"] = len(dashes)
+    if len(contrasts) >= 4 and total_lines and len(contrasts) / total_lines > 0.08:
+        hits["対比の型の多用"] = list(dict.fromkeys(contrasts))[:2] + [(None, 0, f"「ではなく」「だけでなく」が {len(contrasts)} か所 / 本文 {total_lines} 行")]
+        counts["対比の型の多用"] = len(contrasts)
     return hits, counts
 
 

@@ -26,9 +26,9 @@ AIエージェントが作業前に必要に応じて読む背景情報。常時
 
 ## 確定事項（2026-10-05 にリポジトリで確認）
 
-- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`、`deck-sprint`、`anti-ai-look`（PR #2 の anti-ai-design を UI・資料・文章向けに作り直したもの）
+- 収録スキル: `prompt-architect`、`ryo-product-delivery`、`workspace-setup`、`work-loop`、`deliverable-check`、`deck-sprint`、`anti-ai-look`（PR #2 の anti-ai-design を UI・資料・文章向けに作り直したもの）、`quality-gate`、`task-forms`、`research-brief`（後の3つは 2026-11-17 に追記）
 - 収録ワークフロー（プラグインのみ・Claude Code 専用）: `deck-build`、`app-design`、`app-implement`、`verify-fix`
-- 収録サブエージェント（プラグインのみ）: `deliverable-reviewer`、`researcher`、`fact-checker`、`ui-checker`
+- 収録サブエージェント（プラグインのみ）: `deliverable-reviewer`、`researcher`、`fact-checker`、`ui-checker`、`design-reviewer`（2026-11-17 に追記）
 - 利用者のプラン: Pro（2026-10-05 に利用者から回答）。Pro でのワークフローの扱いは `skills/workspace-setup/references/spec-notes.md`（出典つき）
 - 資料の主な形式: pptx、claude.ai の Slides / Docs、HTML。アプリの技術スタックは案件ごとに異なる
 - 収録 mod: `vibe-deck`（function hooks は early access。README に 2.1.289 で検証済みと記載）
