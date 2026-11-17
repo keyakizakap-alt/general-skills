@@ -22,18 +22,19 @@ from pathlib import Path
 
 PREAMBLE = re.compile(
     r"^(承知(?:いた)?しました|かしこまりました|了解(?:です|しました)|ご質問ありがとう|お問い合わせありがとう"
-    r"|素晴らしい(?:質問|ご質問|視点)|良い質問|はい、|以下(?:に|の通り|のとおり)|それでは|まず(?:は)?結論から"
+    r"|素晴らしい(?:質問|ご質問|視点)|良い質問|以下(?:に|の通り|のとおり)|それでは|まず(?:は)?結論から"
     r"|.{0,30}について(?:説明|解説|回答|ご説明|ご紹介|お答え)(?:し|いたし)ます)")
 CLOSING = re.compile(
     r"お役に立て|ご不明(?:な)?点|お気軽に|いかがでし(?:ょうか|たか)|何かあれば|ご質問があれば|参考になれば"
-    r"|お手伝いでき|お知らせください。?$")
+    r"|お手伝いでき")
 PLACEHOLDER = re.compile(r"TODO|TBD|XXX|Lorem ipsum|〇〇|○○|◯◯|\{\{[^}]*\}\}|［[^］]*を入力[^］]*］|\[[^\]]*を入力[^\]]*\]")
 VAGUE = re.compile(r"多くの|大幅に|かなりの|数多くの|一般的に|よく言われ|最近では|近年")
 GUESS = re.compile(r"と思われ|おそらく|はずです|はずだ|可能性が高い|と見られ")
 LABEL = re.compile(r"推測|未確認|推定|仮説|試算")
 URL = re.compile(r"https?://[^\s)>\]」』）]+")
-DATE = re.compile(r"\d{4}[-/年]\d{1,2}[-/月]\d{1,2}")
-SOURCE_HEAD = re.compile(r"^(?:#{1,6}\s*)?(?:出典|参考(?:資料|文献)?|ソース|Sources?|References?)\s*[:：]?")
+SOURCE_HEAD = re.compile(r"^(?:#{1,6}\s*)?(?:出典|参考(?:資料|文献)?|Sources?|References?)\s*[:：]?\s*$")
+NOTE_HEAD = re.compile(r"^(?:前提|未確認|出典)\s*[:：]")  # 成果物の後ろに付ける注記（長さの上限に含めない）
+ACQUIRED = re.compile(r"取得日\s*[:：]?\s*\d{4}[-/年]\d{1,2}[-/月]\d{1,2}")
 
 
 def body_lines(raw):
@@ -68,7 +69,7 @@ def check(raw, max_chars=None, allow_placeholders=False):
             warns.append((i, "結論が冒頭に無い疑い", f"最初の段落が {len(first)} 字", "答えを1〜2文で先に出す"))
 
     # 締めの定型（末尾3行。出典の見出しと URL の行は除く）
-    tail = [(i, l) for i, l in filled if not SOURCE_HEAD.match(l) and not URL.search(l)]
+    tail = [(i, l) for i, l in filled if not SOURCE_HEAD.match(l) and not NOTE_HEAD.match(l) and not URL.search(l)]
     for i, l in tail[-3:]:
         if CLOSING.search(l):
             errors.append((i, "締めの定型", l[:50], "削るか、相手の次の一手を具体的に書く"))
@@ -83,7 +84,7 @@ def check(raw, max_chars=None, allow_placeholders=False):
     # 出典の書式（出典の節にある URL 行は、取得日と公式/非公式を持つ）
     in_src, has_src, urls_outside = False, False, 0
     for i, l in filled:
-        if SOURCE_HEAD.match(l):
+        if SOURCE_HEAD.match(l) or re.match(r"^出典\s*[:：]", l):
             in_src, has_src = True, True
             if not URL.search(l):
                 continue
@@ -91,7 +92,7 @@ def check(raw, max_chars=None, allow_placeholders=False):
             in_src = False
         if URL.search(l):
             if in_src:
-                missing = [n for n, ok in (("取得日", DATE.search(l)), ("公式/非公式", re.search(r"公式|非公式|一次|二次", l))) if not ok]
+                missing = [n for n, ok in (("取得日", ACQUIRED.search(l)), ("公式/非公式", re.search(r"公式|非公式|一次情報", l))) if not ok]
                 if missing:
                     errors.append((i, "出典の書式不足", l[:50], "不足: " + "・".join(missing) + "（タイトル／URL／公式・非公式／取得日）"))
             else:
@@ -117,7 +118,8 @@ def check(raw, max_chars=None, allow_placeholders=False):
 
     # 長さ
     if max_chars:
-        size = sum(len(l) for _, l in filled)
+        cut = next((n for n, (_, l) in enumerate(filled) if NOTE_HEAD.match(l) or SOURCE_HEAD.match(l)), len(filled))
+        size = sum(len(l) for _, l in filled[:cut])
         if size > max_chars:
             errors.append((0, "長さの上限超過", f"{size} 字（上限 {max_chars}）", "足す前に削る。経緯と重複から落とす"))
     return errors, warns
@@ -126,7 +128,7 @@ def check(raw, max_chars=None, allow_placeholders=False):
 def main():
     ap = argparse.ArgumentParser(description="回答・文書の型の検査")
     ap.add_argument("target", help="ファイル、または - （標準入力）")
-    ap.add_argument("--max-chars", type=int, help="本文の文字数の上限（空行・コードブロックを除く）")
+    ap.add_argument("--max-chars", type=int, help="本文の文字数の上限（空行・コードブロック・末尾の前提/未確認/出典を除く）")
     ap.add_argument("--allow-placeholders", action="store_true", help="雛形として穴埋めを残す文書")
     ap.add_argument("--strict", action="store_true", help="注意も不合格にする")
     a = ap.parse_args()

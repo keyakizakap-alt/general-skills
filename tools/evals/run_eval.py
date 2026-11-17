@@ -4,8 +4,14 @@
     python3 tools/evals/run_eval.py task-forms --out /tmp/eval-run
     python3 tools/evals/run_eval.py task-forms --out /tmp/eval-run --only 9,10,11,12
 
-手順: prompts/*.txt の各依頼を、素の状態（base）と、スキル本文と references/ を
+手順: prompts/*.txt の各依頼を、スキルなし（base）と、スキル本文と references/ を
 システムプロンプトに足した状態（skill）で生成し、左右を入れ替えて2回ずつ採点して集計する。
+どちらも空のフォルダで `--setting-sources project` を付けて実行し、利用者の設定・プラグイン・
+スキル（CLAUDE.md を含む）を読み込ませない。
+
+同じ --out で再実行すると、生成済みの出力を使って続きから進める（時間切れや利用上限で止まったとき用）。
+スキルの本文を変えた後に同じ --out を使うと、古い出力を採点してしまうので、本文が前回と違えば止める。
+スキルを直した後は、新しい --out を指定する。
 
 注意:
 - 実行のたびに API の利用が発生する（依頼1件につき生成2回・採点2回）。
@@ -42,13 +48,15 @@ RUBRIC = """あなたは、依頼者本人の立場で2つの回答を比べる�
 
 
 def claude(prompt, cwd, system_file=None):
-    cmd = ["claude", "-p", "--tools", "", "--max-turns", "1", "--strict-mcp-config"]
+    cmd = ["claude", "-p", "--tools", "", "--max-turns", "1", "--strict-mcp-config", "--setting-sources", "project"]
     if system_file:
         cmd += ["--append-system-prompt-file", str(system_file)]
     try:
         r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, cwd=cwd, timeout=600)
     except subprocess.TimeoutExpired:
         return ""  # 時間切れは空として扱い、呼び出し側の再試行に任せる（1件の失敗で全体を止めない）
+    if r.returncode != 0:
+        return ""  # CLI の失敗は空として扱い、再試行に任せる
     if "hit your" in r.stdout and "limit" in r.stdout:
         sys.exit(f"利用上限に達したため中断: {r.stdout.strip()[:120]}（生成済みの出力は残る。解除後に同じコマンドで再開できる）")
     return r.stdout
@@ -71,6 +79,9 @@ def generate(job):
         if f.exists() and f.stat().st_size > 200 and not LEAK.search(f.read_text(encoding="utf-8")[:400]):
             break
         f.write_text(claude(prompt, cwd, sysfile if cond == "skill" else None), encoding="utf-8")
+    text = f.read_text(encoding="utf-8")
+    if len(text) < 200 or LEAK.search(text[:400]):
+        print(f"警告: {name}.{cond} は4回試しても空か思考メモ混入のまま。採点結果を割り引くこと")
     return name, cond
 
 
@@ -83,10 +94,12 @@ def judge(job):
         m = list(re.finditer(r"\{\s*\"A\".*\}", claude(text, cwd), re.S))
         try:
             d = json.loads(m[-1].group(0))
+            for ab in ("A", "B"):
+                d[ab] = {k: float(d[ab][k]) for k in KEYS}
             d["map"] = {"A": a, "B": b}
             (out / f"{name}.judge{order}.json").write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
             return name, order, d
-        except (IndexError, ValueError):
+        except (IndexError, ValueError, KeyError, TypeError):
             continue
     return name, order, None
 
@@ -108,7 +121,11 @@ def main():
         print("依頼が見つかりません")
         return 2
     sysfile = out / "skill_prompt.md"
-    sysfile.write_text(skill_prompt(a.skill), encoding="utf-8")
+    new_prompt = skill_prompt(a.skill)
+    if sysfile.exists() and sysfile.read_text(encoding="utf-8") != new_prompt and any(out.glob("*.skill.md")):
+        print(f"{out} にはスキルの本文が違うときの出力がある。新しい --out を指定する")
+        return 2
+    sysfile.write_text(new_prompt, encoding="utf-8")
 
     with ThreadPoolExecutor(a.workers) as ex:
         list(ex.map(generate, [(n, c, p, out, sysfile, cwd) for n, p in prompts.items() for c in ("base", "skill")]))

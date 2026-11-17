@@ -11,7 +11,8 @@
     本文で使っていない出典 / 出典番号の無い数字の行 / 出典の節の外にある URL / 取得日が古い出典
 
 制約: 行の形で判定する。内容が正しいか、情報源が独立しているかは判定できない。
-出典は「1. タイトル／URL／公式・非公式／取得日 YYYY-MM-DD」の番号付きの行で書く。
+出典は「1. タイトル／URL／公式・非公式／取得日 YYYY-MM-DD」の番号付きの行で書く。取得日は「取得日」の語の直後の日付で判定する。
+本文の引用は [1]、[1, 2]、[1-3] の形。出典の節は、次の見出しが来るまで続く（後ろに文章を足すときは見出しを付ける）。
 コードブロックとインラインコードは検査しない。
 """
 
@@ -26,7 +27,8 @@ DATE = re.compile(r"(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})")
 KIND = re.compile(r"公式|非公式|一次情報")
 SOURCE_HEAD = re.compile(r"^(?:#{1,6}\s*)?(?:出典|参考(?:資料|文献)?|Sources?|References?)\s*[:：]?\s*$")
 ENTRY = re.compile(r"^(?:[-*]\s*)?\[?(\d+)[\].)]\s*(.+)$")
-CITE = re.compile(r"\[(\d+)\]")
+CITE = re.compile(r"\[(\d+(?:\s*[,，、\-–]\s*\d+)*)\]")
+ACQUIRED = re.compile(r"取得日\s*[:：]?\s*(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})")
 # 単位つきの数字（出典が要る可能性が高いもの）
 FIGURE = re.compile(r"\d[\d,.]*\s*(?:%|％|円|ドル|USD|JPY|件|社|人|倍|万|億|GB|MB|トークン|リージョン)")
 LABEL = re.compile(r"推測|未確認|試算|推定|古い可能性|前提")
@@ -71,10 +73,10 @@ def check(raw, today, max_age_days):
         num, rest = int(m.group(1)), m.group(2)
         entries[num] = i
         missing = [name for name, ok in (("URL", URL.search(rest)), ("公式/非公式", KIND.search(rest)),
-                                         ("取得日", DATE.search(URL.sub("", rest)))) if not ok]
+                                         ("取得日", ACQUIRED.search(rest))) if not ok]
         if missing:
             errors.append((i, f"出典 {num} の書式不足", "不足: " + "・".join(missing)))
-        d = DATE.search(URL.sub("", rest))
+        d = ACQUIRED.search(rest)
         if d and max_age_days:
             try:
                 got = datetime.date(int(d.group(1)), int(d.group(2)), int(d.group(3)))
@@ -87,10 +89,15 @@ def check(raw, today, max_age_days):
 
     cited = set()
     for i, l in body:
-        for n in CITE.findall(l):
-            cited.add(int(n))
-            if int(n) not in entries and src_start is not None:
-                errors.append((i, f"[{n}] が出典に無い", "出典に追加するか、番号を直す"))
+        for group in CITE.findall(l):
+            nums = []
+            for part in re.split(r"\s*[,，、]\s*", group):
+                ends = [int(x) for x in re.split(r"\s*[\-–]\s*", part)]
+                nums += range(ends[0], ends[-1] + 1) if len(ends) > 1 else ends
+            for n in nums:
+                cited.add(n)
+                if n not in entries and src_start is not None:
+                    errors.append((i, f"[{n}] が出典に無い", "出典に追加するか、番号を直す"))
         if URL.search(l):
             warns.append((i, "出典の節の外に URL", "本文は [番号] にし、URL は出典にまとめる"))
         if (FIGURE.search(l) and not CITE.search(l) and not LABEL.search(l)
