@@ -45,7 +45,12 @@ def claude(prompt, cwd, system_file=None):
     cmd = ["claude", "-p", "--tools", "", "--max-turns", "1", "--strict-mcp-config"]
     if system_file:
         cmd += ["--append-system-prompt-file", str(system_file)]
-    r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, cwd=cwd, timeout=300)
+    try:
+        r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, cwd=cwd, timeout=600)
+    except subprocess.TimeoutExpired:
+        return ""  # 時間切れは空として扱い、呼び出し側の再試行に任せる（1件の失敗で全体を止めない）
+    if "hit your" in r.stdout and "limit" in r.stdout:
+        sys.exit(f"利用上限に達したため中断: {r.stdout.strip()[:120]}（生成済みの出力は残る。解除後に同じコマンドで再開できる）")
     return r.stdout
 
 
