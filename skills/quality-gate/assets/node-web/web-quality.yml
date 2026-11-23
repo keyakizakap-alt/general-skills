@@ -1,0 +1,43 @@
+# 開始用の品質ゲート CI。使うリポジトリの .github/workflows/ に置き、そのリポジトリの方針に合わせて調整する。
+# - 他のリポジトリで Actions を SHA 固定している場合は、ここでも同じ方式にそろえる（下は読みやすさのためメジャータグ）。
+# - E2E が Playwright なら「Playwright のインストール」の行を有効にする。起動中のサーバーや秘密情報が要る E2E は、
+#   package.json の "qualityGate": {"requiresEnv": {"test:e2e": ["ENV_NAME"]}} で、未設定時に BLOCKED / NOT_RUN と記録させる。
+name: Web quality
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'draft = ビルドなど最低限 / release = Lint・型検査・E2E も必須'
+        type: choice
+        options: [draft, release]
+        default: draft
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # - run: npx playwright install --with-deps chromium   # Playwright の E2E があるときだけ
+      - name: Quality gate
+        env:
+          MODE: ${{ inputs.mode || 'draft' }}
+        run: node scripts/quality-gate.mjs --mode "$MODE"
+      - name: Evidence summary
+        if: always()
+        run: |
+          if [ -f quality-evidence.json ]; then
+            { echo '### quality-evidence.json'; echo '```json'; cat quality-evidence.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi

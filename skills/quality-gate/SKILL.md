@@ -1,6 +1,6 @@
 ---
 name: quality-gate
-description: 作業の終わりに必ず品質検査が走る仕組みを、どのリポジトリ・チャットでも同じ手順で用意して使う。Claude Code ではプロジェクトに検査コマンドを登録し、応答の終わりのフックで自動実行させ、資料はデザイン確認・事実確認の2役で見直す。チャットでは同じ検査を手順として実行する。「品質チェックの仕組みを入れて」「テストを必ず回すようにして」「このリポジトリにも検査を設定して」「完了前に検品して」といった依頼で使う。Use to set up and run an automatic quality gate (tests, design review, fact check) in any repository or chat.
+description: 作業の終わりに必ず品質検査が走る仕組みを、どのリポジトリ・チャットでも同じ手順で用意して使う。Claude Code ではプロジェクトに検査コマンドを登録し、応答の終わりのフックで自動実行させ、資料はデザイン確認・事実確認の2役で見直す。チャットでは同じ検査を手順として実行する。「品質チェックの仕組みを入れて」「テストを必ず回すようにして」「このリポジトリにも検査を設定して」「完了前に検品して」「動作確認して報告して」「本番で確認済みと言っていいか」といった依頼で使う。アプリ・Webの完了報告は実装済み・ローカル検証済み・本番検証済み・未検証に分ける。Use to set up and run an automatic quality gate (tests, design review, fact check, evidence-based completion report) in any repository or chat.
 ---
 
 # quality-gate
@@ -52,6 +52,14 @@ description: 作業の終わりに必ず品質検査が走る仕組みを、ど�
 2. 成果物を条件ごとに確認し、成功 / 失敗 / 未確認と根拠を書く。
 3. 資料なら、上の design-reviewer の観点（番号のゼロ埋め、同じ配置の反復、はみ出し、抽象的な見出し、装飾、根拠）で見直す。
 4. 事実は一次情報で確かめ、確かめられないものは「未確認」と書く。
+
+## 5. アプリ・Webの完了報告（コードを作る・直す作業）
+
+操作のあるアプリ・サイトを作る・直すときは、完了を「実装済み / ローカル検証済み / 本番検証済み / 未検証」に分けて報告する。区分の定義、使ってよい言い方、不具合を直す順序（再現→根本原因→最小修正→回帰テスト）は `references/report-contract.md`。複雑な作業・公開前は `references/evidence-report-template.md` の表に証拠を書く。
+
+Node のプロジェクトに、`lint` `typecheck` `build` `test:e2e` を順に実行して証拠JSONを出すスクリプトとCIの雛形を入れるときは `references/node-web-adoption.md`（雛形は `assets/node-web/`）。コピーは対象リポジトリごとに利用者が意図して行い、既存のテスト構成や CI を置き換えない。ChatGPT のカスタム指示に同じ考え方を貼る場合の文面は `assets/chatgpt-custom-instructions.txt`。
+
+軽微な修正・調査・雑談には適用しない。
 
 ## 報告
 
